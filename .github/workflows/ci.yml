@@ -1,0 +1,36 @@
+name: Extension checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Unit, storage, privacy, and UI tests
+        run: npm test
+      - name: Build production extension
+        run: npm run build
+      - name: Install test Chromium and system dependencies
+        run: npx playwright install --with-deps chromium
+      - name: Test production extension in Chromium
+        run: npm run test:e2e
+      - name: Audit production dependencies
+        run: npm audit --omit=dev
