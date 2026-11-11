@@ -68,7 +68,16 @@ export default defineBackground(() => {
 
   function isUi(sender: chrome.runtime.MessageSender): boolean {
     if (sender.id !== chrome.runtime.id || !sender.url) return false;
-    return ['popup.html', 'dashboard.html', 'options.html'].some((page) => sender.url === chrome.runtime.getURL(page));
+    if (sender.frameId !== undefined && sender.frameId !== 0) return false;
+    try {
+      // A section link/query does not change the trusted extension document.
+      // Still compare the full canonical base URL, not a prefix or pathname
+      // alone, so another origin/extension/lookalike page is never authorized.
+      const documentUrl = new URL(sender.url);
+      documentUrl.hash = '';
+      documentUrl.search = '';
+      return ['popup.html', 'dashboard.html', 'options.html'].some((page) => documentUrl.href === chrome.runtime.getURL(page));
+    } catch { return false; }
   }
 
   async function handle(message: unknown, sender: chrome.runtime.MessageSender): Promise<unknown> {

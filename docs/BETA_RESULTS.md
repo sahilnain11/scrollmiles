@@ -5,7 +5,7 @@
 **Local automated checks passed. Not a public-release sign-off.**
 
 - Strict TypeScript: passed.
-- Vitest: **100 tests in 10 files** cover measurement, storage, policy/authorization, UI, settings migration, hourly collector/calendar boundaries, detailed consent/deletion, and worker compatibility. See the latest execution record below.
+- Vitest: **107 tests in 11 files** cover measurement, storage, policy/authorization, UI, settings migration, hourly collector/calendar boundaries, detailed consent/deletion, worker compatibility, and redesigned site/chart interactions. See the execution records below.
 - Production build: passed; assets generated locally.
 - Playwright: **23 tests** cover the original production suite plus opted-in site insights. See the latest execution record below.
 - Full npm dependency audit: **0 known vulnerabilities** at execution time. This is not a security certification.
@@ -102,6 +102,28 @@ The owner explicitly approved a separate, opt-in expansion of local storage: exa
 GitHub source backups and CI must not include browser profiles, exports, test screenshots, installed dependencies, built extension output, or credentials. The original owner-supplied product context is retained. A private repository is not a public release or license selection.
 
 Latest local execution for this follow-up: **typecheck passed, 100 Vitest tests passed, production build passed, 23 Chromium tests passed, full dependency audit reported 0 known vulnerabilities**. Editor diagnostics reported no errors. Both-theme and narrow site-insights views were inspected with local-fixture activity; the narrow evidence uses a viewport capture to avoid full-page screenshot stitching artifacts.
+
+## Dashboard section-link authorization regression
+
+The owner's screenshot showed **This action is only available in ScrollMiles** at the genuine extension dashboard with `#website-insights`. This was reproduced: the worker compared the entire sender URL to the bare dashboard address and incorrectly rejected its section fragment. It was an authorization bug, not evidence that the owner's database was missing or corrupted.
+
+The worker now parses the sender URL, removes only fragment/query for document identification, and compares the full canonical base URL against the known popup/dashboard/options allowlist. It still requires the current extension ID and rejects non-top-level frames, malformed URLs, foreign origins/extensions, nested lookalike paths, and unknown pages. It does not use a loose prefix or pathname-only match. No history, consent, permissions, or measurement behavior is changed by the fix.
+
+Unit regressions cover anchored/query-bearing known pages and unauthorized lookalikes. The real Chromium insights test now **follows the actual View website insights settings link**, verifies `dashboard.html#website-insights` loads without an alert, reloads that exact address, and continues the data/deletion/accessibility checks. The earlier direct bare-dashboard test did not cover this user navigation path.
+
+After rebuilding, Chrome must reload the installed extension's worker to use the fix. Do not remove/reinstall or clear history. Close old ScrollMiles tabs and reopen via the toolbar or the settings link.
+
+## Website insights readability follow-up
+
+The owner requested a clearer presentation of the real site breakdown. The redesigned panel adds a compact searchable/sortable host list with locally generated monograms, a selected-site distance hero, recorded-site distance share, three explanatory metric cards, and synchronized Today/Last 7 days controls. Host schemes and subdomains remain separate; no favicon/network calls or site-brand guesses were introduced.
+
+One chart switches between hourly/daily data and distance/active-scrolling/burst-start metrics. Its maximum, time scope, selected interval, and exact value are labeled. Hover and roving keyboard focus with Left/Right/Home/End explore bars; accessible exact-value tables remain. Daily mode explicitly shows seven days regardless of the overview period. Search with no matches keeps the field usable; sorting/filtering does not change the recorded-site share denominator. Zero timed durations are explained, and positive sub-second durations show <1s rather than a misleading 0s.
+
+Collection, consent, storage, exports, and detailed deletion behavior are unchanged. Existing anonymous history is not relabeled, and the panel never claims browser usage time or attention. Methodology text is collapsed by default; per-site deletion still requires confirmation.
+
+Added five component tests and expanded the real-browser path to cover search/no-result recovery, sorting, metric and timescale switching, period synchronization, keyboard exploration, and dark/light accessibility. Focused panel screenshots and a narrow viewport screenshot use local fixture activity, not the owner's browsing history. Manual VoiceOver and device checks remain open.
+
+Latest combined local validation: **107 Vitest tests passed in 11 files; all 23 production Chromium tests passed; typecheck/build passed; full npm 11.21.2 audit reported 0 known vulnerabilities**. This includes the anchored overview-link fix, the exact settings-link navigation and reload, both-theme chart/site interactions, and 200% zoom. The pre-existing overview-period browser test was updated to distinguish its controls from the new synchronized website-period controls; collection logic was not changed to satisfy that test.
 
 ## Reproducible evidence
 

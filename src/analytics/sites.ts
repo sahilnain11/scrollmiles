@@ -40,3 +40,21 @@ export function siteDays(hours: SiteHourStats[], site: string, now = new Date())
 export function hourLabel(hour: number): string {
   return `${String(hour).padStart(2, '0')}:00`;
 }
+
+/** Hostnames stay exact (including www); no network favicon or guessed brand. */
+export function siteIdentity(site: string): { hostname: string; protocol: string; initials: string } {
+  try {
+    const url = new URL(site);
+    const letters = url.hostname.replace(/^www\./, '').replace(/[^a-z0-9]/gi, '');
+    return { hostname: url.hostname, protocol: url.protocol.slice(0, -1).toUpperCase(), initials: letters.slice(0, 2).toUpperCase() || '↟' };
+  } catch { return { hostname: site, protocol: '', initials: '↟' }; }
+}
+
+export function siteScrollTime(ms: number): string {
+  if (ms > 0 && ms < 1_000) return '<1s';
+  if (ms < 1_000) return '0s';
+  const seconds = Math.floor(ms / 1_000);
+  if (seconds < 60) return `${seconds}s`;
+  if (seconds < 3_600) return `${Math.floor(seconds / 60)}m ${seconds % 60}s`;
+  return `${Math.floor(seconds / 3_600)}h ${Math.floor(seconds % 3_600 / 60)}m`;
+}

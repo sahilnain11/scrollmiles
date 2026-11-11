@@ -224,14 +224,14 @@ test('200% browser zoom preserves CSS pixels and usable keyboard navigation', as
   await dashboard.goto(`chrome-extension://${beta.extensionId}/dashboard.html`);
   const dashboardId = await dashboard.evaluate(async () => (await chrome.tabs.getCurrent())!.id!);
   await dashboard.evaluate((id) => chrome.tabs.setZoom(id, 2), dashboardId);
-  await expect(dashboard.getByRole('button', { name: 'Today' })).toBeVisible();
+  await expect(dashboard.getByRole('button', { name: 'Today', exact: true })).toBeVisible();
   await dashboard.keyboard.press('Tab');
   await expect(dashboard.getByRole('link', { name: 'Skip to main content' })).toBeFocused();
   await dashboard.keyboard.press('Enter');
   await expect(dashboard.locator('main')).toBeFocused();
-  await dashboard.getByRole('button', { name: 'Last 7 days' }).focus();
+  await dashboard.getByRole('button', { name: 'Last 7 days', exact: true }).focus();
   await dashboard.keyboard.press('Enter');
-  await expect(dashboard.getByRole('button', { name: 'Last 7 days' })).toHaveAttribute('aria-pressed', 'true');
+  await expect(dashboard.getByRole('button', { name: 'Last 7 days', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await dashboard.locator('summary').focus();
   await dashboard.keyboard.press('Enter');
   await expect(dashboard.getByRole('table')).toBeVisible();

@@ -87,6 +87,37 @@ afterEach(() => {
 });
 
 describe('background authorization and lifecycle', () => {
+  it('accepts known extension UI pages with section anchors and query parameters', async () => {
+    for (const page of ['popup.html', 'dashboard.html', 'options.html']) {
+      for (const suffix of ['#website-insights', '?view=details#website-insights']) {
+        const sender = { ...ui, url: `chrome-extension://${id}/${page}${suffix}`, frameId: 0 };
+        const result = await request<Snapshot>({ type: 'GET_SNAPSHOT' }, sender);
+        expect(result.ok, `${page}${suffix} should remain an authorized UI page`).toBe(true);
+      }
+    }
+    const sender = { ...ui, url: `chrome-extension://${id}/dashboard.html#website-insights`, frameId: 0 };
+    expect((await request({ type: 'SET_THEME', theme: 'light' }, sender)).ok).toBe(true);
+    expect(settings.theme).toBe('light');
+  });
+
+  it('does not trust lookalike URLs, another extension, unknown pages, or embedded frames', async () => {
+    const senders: chrome.runtime.MessageSender[] = [
+      { ...ui, id: 'foreign', url: `chrome-extension://${id}/dashboard.html#website-insights` },
+      { ...ui, url: 'chrome-extension://other-extension/dashboard.html#website-insights' },
+      { ...ui, url: `https://${id}/dashboard.html#website-insights` },
+      { ...ui, url: `chrome-extension://${id}/unknown.html#dashboard.html` },
+      { ...ui, url: `chrome-extension://${id}/nested/dashboard.html` },
+      { ...ui, url: `chrome-extension://${id}/dashboard.html.attacker` },
+      { ...ui, url: 'not a URL' },
+      { ...ui, url: `chrome-extension://${id}/dashboard.html`, frameId: 1 },
+    ];
+    for (const sender of senders) {
+      expect((await request({ type: 'GET_SNAPSHOT' }, sender)).ok).toBe(false);
+      expect((await request({ type: 'SET_THEME', theme: 'light' }, sender)).ok).toBe(false);
+    }
+    expect(settings.theme).toBe('dark');
+  });
+
   it('only stores sender-derived site/hour totals after explicit insights opt-in', async () => {
     await request({ type: 'CHECKPOINT', checkpoint: checkpoint() }, collector);
     expect(await state.db!.count('siteHours')).toBe(0);
