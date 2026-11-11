@@ -3,6 +3,7 @@ import { ArrowDown, ArrowDownToLine, ArrowRight, ArrowUpRight, Check, ChevronRig
 import { Brand } from './Brand';
 import { AllSitesControl } from './AllSitesControl';
 import { SiteInsights, SiteInsightsControl } from './SiteInsights';
+import { PopupOverview } from './PopupOverview';
 import { dayLabel, distanceLabel, durationLabel, emptyDay, lastSevenDays, localDate, sumDays } from '../analytics/metrics';
 import { send } from '../utils/client';
 import { normalizeSite, sitePattern } from '../utils/sites';
@@ -121,7 +122,7 @@ export function App({ page }: { page: Page }) {
 
   return <div className={isPopup ? 'app popup' : 'app'}>
     <a className="skip-link" href="#main-content">Skip to main content</a>
-    <header className="header"><Brand />{!isPopup && <nav className="main-nav" aria-label="Main navigation"><a href="dashboard.html" className={page === 'dashboard' ? 'nav-active' : ''}>Overview</a><a href="options.html" className={page === 'options' ? 'nav-active' : ''}>Privacy & settings</a></nav>}<div className="header-actions">{!isPopup && <span className="local-chip"><LockKeyhole size={12} /> On-device only</span>}<button className="icon-button theme-button" aria-label={settings.theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'} disabled={busy || loading} onClick={() => { void act(() => send({ type: 'SET_THEME', theme: settings.theme === 'dark' ? 'light' : 'dark' })); }}>{settings.theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}</button></div></header>
+    <header className="header"><Brand />{!isPopup && <nav className="main-nav" aria-label="Main navigation"><a href="dashboard.html" className={page === 'dashboard' ? 'nav-active' : ''}>Overview</a><a href="options.html" className={page === 'options' ? 'nav-active' : ''}>Privacy & settings</a></nav>}<div className="header-actions">{!isPopup && <span className="local-chip"><LockKeyhole size={12} /> On-device only</span>}<button className="icon-button theme-button" aria-label={settings.theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'} disabled={busy || loading} onClick={() => { void act(() => send({ type: 'SET_THEME', theme: settings.theme === 'dark' ? 'light' : 'dark' })); }}>{settings.theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}</button>{isPopup && <a className="icon-button quick-settings" href="options.html" target="_blank" rel="noreferrer" aria-label="Privacy and settings"><Settings2 size={16} /></a>}</div></header>
 
     <main id="main-content" tabIndex={-1}>
       {loadError && <div className="load-feedback" role="alert"><p><strong>{hasSnapshot ? 'These totals may be out of date.' : 'Your statistics could not be loaded.'}</strong>{loadError} Tracking status could not be verified.</p><button className="button ghost" disabled={initializing} onClick={() => {
@@ -132,7 +133,7 @@ export function App({ page }: { page: Page }) {
       {initializing && <div className="sr-only" role="status">Loading your local statistics.</div>}
       {notice && <div className="message success" role="status"><Check size={16} />{notice}</div>}
 
-      {!hasSnapshot ? <section className="panel unavailable-panel"><h1>{initializing ? 'Opening your local journey…' : 'Your data deserves a proper read.'}</h1><p>{initializing ? 'Reading the statistics stored on this device.' : 'An unavailable database is not the same as zero activity. Retry loading before viewing totals or changing tracking.'}</p><a className="button ghost" href="privacy.html" target={isPopup ? '_blank' : undefined} rel="noreferrer">Read the privacy notice<ArrowUpRight size={14} /></a></section> : page === 'options' ? <>
+      {!hasSnapshot ? <section className="panel unavailable-panel"><h1>{initializing ? 'Opening your local journey…' : 'Your data deserves a proper read.'}</h1><p>{initializing ? 'Reading the statistics stored on this device.' : 'An unavailable database is not the same as zero activity. Retry loading before viewing totals or changing tracking.'}</p><a className="button ghost" href="privacy.html" target={isPopup ? '_blank' : undefined} rel="noreferrer">Read the privacy notice<ArrowUpRight size={14} /></a></section> : isPopup ? <PopupOverview snapshot={snapshot} totals={totals} period={period} onPeriodChange={setPeriod} disabled={busy || loading} statusUnverified={!!loadError} siteForm={siteForm} run={act} onExport={share} /> : page === 'options' ? <>
         <div className="page-heading"><div className="eyebrow"><ShieldCheck size={14} /> YOUR DATA. YOUR RULES.</div><h1>A little tracking.<br /><span>A lot of privacy.</span></h1><p>Only the websites you choose. Only on this device.</p></div>
         <AllSitesControl supported={snapshot.capabilities?.allSiteAccess === true} enabled={settings.allSitesEnabled} disabled={busy || loading} run={act} />
         <SiteInsightsControl snapshot={snapshot} disabled={busy || loading} run={act} />

@@ -18,6 +18,16 @@ The production extension has already been built locally.
 
 Nothing is tracked until a website is enabled. HTTPS and HTTP are separate; so are subdomains. For example, enabling `https://example.com` does not enable `https://www.example.com`. Chrome host permissions cover all paths and ports for a hostname. Paste a URL if convenient; paths, credentials, query strings, and fragments are not saved (credential-bearing URLs are rejected).
 
+### Popup — a quick glance
+
+The toolbar popup is a focused summary, not a squeezed dashboard. **Today / Last 7 days** selects the existing local aggregate and the period used by **Wrapped** export. The large distance is clearly a screen-equivalent estimate. **Active scrolling** and **Scroll bursts** are not browser-use time or session counts; zero timed seconds can accompany an isolated scroll, and sub-second durations show **<1s**. Expand **What do these numbers mean?** for the raw CSS-pixel total and measurement definitions.
+
+The status row separates **tracking enabled**, **tracking paused**, **no website access**, and **status unavailable**. It describes the global collection setting, not proof the current tab is being tracked. Selected-host coverage or all-site/exclusion counts stay visible. Pause/resume is one click and does not erase history. A failed refresh warns that the previous numbers may be stale and disables the popup's pause/export actions until a successful read.
+
+First use prioritizes the website access form instead of empty metric tiles; optional all-site access is reviewed in settings. Once access is configured, detailed permission management moves to **Privacy & settings**, always reachable from the header. **Website insights** links directly to the real dashboard section only when separately opted in; when off it links to settings without enabling anything. **Your full story** opens the full dashboard. All links open extension pages in a new tab; Wrapped downloads an entirely local, site-free PNG.
+
+The first-use and populated baseline layouts are tested to fit a 390px-wide/600px-high surface, with no horizontal overflow at 320px. Expanded explanations, very large values, long warnings, and some empty states can require vertical scrolling. Real collection, storage, permissions, and consent rules are unchanged. Physical toolbar behavior and native permission prompts remain manual acceptance checks; browser tests render the actual production popup document in bounded tabs.
+
 ### One permission for all supported websites
 
 Open **Privacy & settings → All supported websites → Set up all-site access**. Read the sensitive-site warning, then choose **Allow all supported websites** and accept Chrome's prompt. This is **off by default** for both new and existing installations. No mandatory install-time website access has been added.
@@ -140,6 +150,7 @@ Development mode may need a supported local Chrome installation and WXT's develo
 | [src/tracking/HourlyScrollTracker.ts](src/tracking/HourlyScrollTracker.ts) | Continuous-burst attribution across hour/day boundaries |
 | [src/components/SiteInsights.tsx](src/components/SiteInsights.tsx) | Explicit detailed-history consent, live site analysis, accessible charts, and deletion |
 | [src/components/App.tsx](src/components/App.tsx) | Shared popup/dashboard/settings UI |
+| [src/components/PopupOverview.tsx](src/components/PopupOverview.tsx) | Compact real-data popup, coverage/pause status, onboarding and navigation |
 | [src/components/PrivacyPage.tsx](src/components/PrivacyPage.tsx) | Offline privacy notice, independent of historical database/worker availability |
 | [src/privacy/policy.ts](src/privacy/policy.ts) | Single source of privacy notice text; publisher/contact review required before public release |
 | [assets/brand/icon.svg](assets/brand/icon.svg) | Original brand icon source, rasterized locally during build |

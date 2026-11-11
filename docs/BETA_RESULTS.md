@@ -5,9 +5,9 @@
 **Local automated checks passed. Not a public-release sign-off.**
 
 - Strict TypeScript: passed.
-- Vitest: **107 tests in 11 files** cover measurement, storage, policy/authorization, UI, settings migration, hourly collector/calendar boundaries, detailed consent/deletion, worker compatibility, and redesigned site/chart interactions. See the execution records below.
+- Vitest: **115 tests in 12 files** cover measurement, storage, policy/authorization, UI, settings migration, hourly collector/calendar boundaries, detailed consent/deletion, worker compatibility, site/chart interactions, and popup quick-glance states. See the execution records below.
 - Production build: passed; assets generated locally.
-- Playwright: **23 tests** cover the original production suite plus opted-in site insights. See the latest execution record below.
+- Playwright: **26 tests** cover the original production suite plus opted-in site insights and the compact production popup document. See the latest execution record below.
 - Full npm dependency audit: **0 known vulnerabilities** at execution time. This is not a security certification.
 - Editor diagnostics: no errors.
 
@@ -125,11 +125,26 @@ Added five component tests and expanded the real-browser path to cover search/no
 
 Latest combined local validation: **107 Vitest tests passed in 11 files; all 23 production Chromium tests passed; typecheck/build passed; full npm 11.21.2 audit reported 0 known vulnerabilities**. This includes the anchored overview-link fix, the exact settings-link navigation and reload, both-theme chart/site interactions, and 200% zoom. The pre-existing overview-period browser test was updated to distinguish its controls from the new synchronized website-period controls; collection logic was not changed to satisfy that test.
 
+## Popup quick-glance follow-up
+
+The popup now has a dedicated presentational component backed by the same real snapshot and commands as the dashboard. The existing warm dark/lime/light colors are retained; no unsupported browsing-time/session/personality metrics, demo activity, new permissions, data collection, or networking were introduced.
+
+- A compact distance hero and existing active-scroll/burst metrics replace the large dashboard introduction. Period selection, dates, export period, screen-equivalent labeling, raw pixels, and sub-second durations stay explicit.
+- First use shows a smaller genuine zero-distance card and consent-first website setup, not empty metric tiles. Website permission is still requested directly from the submit gesture. Denial/invalid input is recoverable; no optional mode is enabled automatically.
+- A status/coverage row distinguishes pause/no-access/selected-host/all-site settings and offers a global pause/resume action only when relevant. On failed refresh the displayed status is unverified and popup pause/export actions are disabled; earlier numbers are not silently replaced with zero.
+- Header settings access, insight-consent-aware deep links, full dashboard navigation, and site-free Wrapped download are explicit. Existing website management/exclusion controls remain in settings rather than taking up the default popup.
+- First-use and populated default layouts fit within the 390×600px test surface. The actual document has no horizontal overflow at 320px. Additional messages, long values, expanded metric explanations and some empty states may scroll vertically. A theme-transition contrast issue was caught and fixed by switching primary-button colors atomically.
+
+Eight component tests cover period totals/export payload, pause/resume, consent/coverage, permission denial, untimed scrolling, failed loads/retry, stale-data gating, and pause/history preservation. Three new Chromium tests cover actual local activity, consent boundaries, pause/resume, correct exported filename, first-use/height/layout, dark/light/320px accessibility, and actual new-tab navigation from popup to insights/settings.
+
+Latest local run: **115 unit/UI tests passed in 12 files, 26 production Chromium tests passed, typecheck and production build passed, full dependency audit found 0 known vulnerabilities; editor diagnostics showed no errors**. First-use, populated, paused, both-theme, and narrow screenshots use test-only local-fixture activity and were inspected. Native Chrome action-popup window interaction could not be exercised through the available headless Playwright page interface; this result is explicitly a production-popup-document test, not a claim that physical toolbar/native permission behavior has been certified.
+
 ## Reproducible evidence
 
 - [Original production-extension browser suite](../tests/e2e/extension.spec.ts).
 - [Expanded beta browser suite](../tests/e2e/beta.spec.ts) and [isolated local fixture](../tests/e2e/beta-fixture.ts).
 - [Collector simulations](../tests/collector.test.ts), [timezone/DST checks](../tests/calendar.test.ts), [UI permission checks](../tests/ui.test.tsx), and [background authorization checks](../tests/background.test.ts).
+- [Popup component checks](../tests/popup.test.tsx) and [production popup browser checks](../tests/e2e/popup.spec.ts).
 - Screenshots and PNGs are generated in ignored local test output on each run. They are illustrative test-fixture data, not the owner's activity or store-ready marketing evidence.
 
 Run the typecheck, unit/UI tests, production build, browser tests, and dependency audit described in [README.md](../README.md#development). These results describe the source/build tested today, not future edits.

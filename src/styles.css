@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "./components/beta.css";
 @import "./components/site-insights.css";
+@import "./components/popup.css";
 
 /* Keep the popup's theme control centered despite the narrow-screen header. */
 .app.popup .header-actions{align-self:center}

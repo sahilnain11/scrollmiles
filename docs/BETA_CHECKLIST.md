@@ -24,6 +24,7 @@ The current suites cover:
 - Actual 200% Chrome zoom, keyboard skip-navigation/period/data-table controls, iframe exclusion, logged/blocked off-fixture HTTP attempts, and a real unavailable-database/retry check in a disposable profile.
 - Simulated collector midnight/clock rollback, bounded retry recovery, no idle polling, and actual calendar functions in isolated New York DST/multiple-timezone processes.
 - Separate opt-in website insights: preserving v1→v2 migration with no backfill, sender-derived site/hour totals, continuous-burst boundary attribution, anonymous/detail/checkpoint atomicity, detailed opt-out erasure, per-site deletion and pending-delete recovery, and real two-site dashboard accessibility in both themes.
+- Compact popup: first-use and populated height budgets, 390/320px widths, correct period totals and site-free export, global pause/resume, denied/invalid website setup, selected/all-site coverage, separate insights consent, stale-read action gating, and real insights/settings deep links. Production popup documents are tested in bounded Chromium tabs; physical action-popup behavior stays manual.
 - Offline privacy notice, keyboard skip-navigation, narrow-screen overflow, and automated WCAG 2 A/AA and WCAG 2.1 A/AA checks on the desktop dark/light dashboard, light popup, light settings, and dark privacy notice.
 
 Automated accessibility checks do **not** prove complete accessibility conformance. Manual keyboard, screen-reader, zoom, contrast, and real permission-dialog checks are still required.

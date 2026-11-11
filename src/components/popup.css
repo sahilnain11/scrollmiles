@@ -1,0 +1,78 @@
+/* Scope quick-glance UI to the toolbar popup; keep dashboard/settings intact. */
+.app.popup{width:390px;max-width:100%;padding:0 20px;margin:0 auto}
+.app.popup .header{height:56px;gap:12px;padding:0;flex-wrap:nowrap}
+.app.popup .brand{font-size:20px;gap:9px}
+.app.popup .brand-mark{width:31px;height:31px}
+.app.popup .header-actions{gap:7px;align-self:center}
+.app.popup .theme-button,.app.popup .quick-settings{height:31px;width:31px;border:1px solid var(--border);border-radius:8px;color:var(--muted)}
+.app.popup .quick-settings:hover{background:var(--raised);color:var(--text)}
+.app.popup main{padding:14px 0 10px}
+.quick-overview{display:flex;flex-direction:column;gap:10px}
+.quick-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.quick-heading h1{font-size:14px;font-weight:550;letter-spacing:-.4px;line-height:1.6}
+.quick-heading p{font-size:9px;color:var(--muted);margin-top:3px;line-height:1.6}
+.quick-period{display:flex;flex-shrink:0;gap:2px;border:1px solid var(--border);padding:3px;border-radius:8px;background:var(--panel)}
+.quick-period button{background:transparent;color:var(--muted);border-radius:5px;font-size:9px;min-height:26px;padding:6px 8px;white-space:nowrap}
+.quick-period button[aria-pressed=true]{color:var(--text);background:var(--raised)}
+.quick-journey{border-radius:14px;overflow:hidden;background:radial-gradient(ellipse at 100% 10%,#b4d7880c,transparent 65%),var(--panel)}
+.quick-distance{position:relative;padding:16px 21px 14px;isolation:isolate}
+.quick-distance>.eyebrow{font-size:9px;letter-spacing:1.3px;color:var(--soft);gap:7px}
+.quick-distance-value{display:flex;align-items:baseline;gap:8px;margin:13px 0 7px;max-width:100%}
+.quick-distance-value strong{font-size:60px;font-weight:550;letter-spacing:-3px;line-height:1.08;overflow-wrap:anywhere;font-variant-numeric:tabular-nums;color:var(--lime)}
+.quick-distance-value>span{font-size:27px;color:var(--muted);letter-spacing:-.8px;font-weight:400}
+.quick-distance>p{font-size:9px;line-height:1.6;color:var(--muted);position:relative;z-index:1}
+.quick-trail{position:absolute;right:-4px;top:31px;width:150px;height:115px;color:var(--soft);pointer-events:none;z-index:-1;opacity:.65}
+.quick-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border-top:1px solid var(--border);margin:0;padding:12px 21px;gap:18px;background:var(--bg)}
+.quick-metrics>div+div{border-left:1px solid var(--border);padding-left:20px}
+.quick-metrics dt{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--muted);line-height:1.6;white-space:nowrap}
+.quick-metrics dt>svg{color:var(--soft);width:13px;height:13px}
+.quick-metrics dd{font-size:25px;line-height:1.25;font-weight:500;letter-spacing:-.8px;font-variant-numeric:tabular-nums;margin:7px 0 4px;overflow-wrap:anywhere}
+.quick-metrics dd>small{display:block;color:var(--muted);font-size:8px;font-weight:400;letter-spacing:normal;line-height:1.6;margin-top:5px}
+.quick-status{display:flex;align-items:center;gap:9px;padding:2px 0;min-width:0}
+.quick-status-dot{height:6px;width:6px;background:var(--muted);border-radius:50%;flex-shrink:0;margin-left:2px}
+.quick-status-on .quick-status-dot{background:var(--soft);box-shadow:0 0 0 4px #b4d78809}
+.quick-status>div{flex:1;min-width:0}
+.quick-status h2{font-size:11px;line-height:1.6;font-weight:500;letter-spacing:0}
+.quick-status p{font-size:9px;color:var(--muted);line-height:1.7;overflow-wrap:anywhere}
+.quick-pause{display:inline-flex;align-items:center;justify-content:center;gap:5px;flex-shrink:0;background:var(--panel);border:1px solid var(--border);border-radius:7px;font-size:10px;padding:7px 9px;min-height:32px}
+.quick-pause:hover:not(:disabled){background:var(--raised)}
+.quick-access-link{display:inline-flex;align-items:center;gap:3px;min-height:32px;padding:6px 5px;color:var(--muted);border-radius:7px}
+.quick-zero{font-size:10px;color:var(--muted);line-height:1.7;padding:9px 11px;background:var(--panel);border:1px dashed var(--border);border-radius:8px}
+.quick-onboarding{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:13px}
+.quick-onboarding h2{font-size:13px;font-weight:500;letter-spacing:-.2px}
+.quick-onboarding>p{font-size:9px;color:var(--muted);line-height:1.7;margin-top:5px}
+.quick-onboarding .site-form{margin:10px 0 0;gap:7px}
+.app.popup .quick-onboarding .input-wrap input{height:33px;font-size:11px}
+.app.popup .quick-onboarding .site-form .icon-button{height:35px;width:35px}
+.quick-onboarding>p.quick-access-note{font-size:8px;margin-top:8px}
+.quick-onboarding>a{display:flex;align-items:center;gap:4px;color:var(--soft);font-size:9px;line-height:1.7;margin-top:6px;width:fit-content}
+.quick-insights{display:flex;align-items:center;gap:10px;padding:11px 12px;border:1px solid var(--border);border-radius:10px;background:var(--panel);min-width:0}
+.quick-insights:hover{background:var(--raised)}
+.quick-insights-icon{height:30px;width:30px;border-radius:8px;color:var(--soft);background:var(--raised);display:grid;place-items:center;flex-shrink:0}
+.quick-insights>span:nth-child(2){min-width:0;flex:1;display:grid;gap:3px}
+.quick-insights strong{font-weight:500;font-size:11px;line-height:1.5}
+.quick-insights strong>small{font-size:8px;color:var(--muted);border:1px solid var(--border);padding:1px 5px;border-radius:4px;margin-left:6px;font-weight:400;vertical-align:1px}
+.quick-insights>span:nth-child(2)>span{font-size:9px;color:var(--muted);line-height:1.7}
+.quick-insights>svg:last-child{color:var(--muted)}
+.quick-actions{display:flex;align-items:stretch;gap:8px}
+.quick-actions>.primary{flex:1;justify-content:space-between}
+.app.popup .button.primary{transition:transform .15s}
+.quick-actions>.button{font-size:11px;min-height:38px;padding:9px 12px}
+.quick-actions>.quick-export{flex-shrink:0;font-size:10px;padding:9px 11px;gap:6px}
+.quick-method{color:var(--muted);font-size:9px;line-height:1.8}
+.quick-method summary{display:flex;align-items:center;gap:5px;cursor:pointer;width:fit-content;padding:1px 0}
+.quick-method summary:after{content:'+';font-size:12px;line-height:1;padding-left:4px}
+.quick-method[open] summary:after{content:'−'}
+.quick-method p{font-size:10px;line-height:1.8;margin-top:9px}
+.quick-method p.quick-raw{display:flex;align-items:center;gap:5px;flex-wrap:wrap;font-size:9px}
+.quick-first-use .quick-distance{padding:14px 18px}
+.quick-first-use .quick-distance-value{margin:8px 0 5px}
+.quick-first-use .quick-distance-value strong{font-size:42px;letter-spacing:-2px}
+.quick-first-use .quick-distance-value>span{font-size:22px}
+.quick-first-use .quick-trail{height:90px;top:14px}
+.app.popup footer{min-height:32px;padding:0;display:flex;align-items:center;justify-content:space-between;flex-direction:row;gap:8px;font-size:9px}
+.app.popup .message{margin-bottom:13px;font-size:10px;padding:9px 11px;line-height:1.7}
+.app.popup .load-feedback{margin-bottom:13px}
+.app.popup .unavailable-panel{min-height:235px;padding:24px 18px;gap:14px}
+.app.popup .unavailable-panel h1{font-size:19px;line-height:1.4;font-weight:500;letter-spacing:-.5px}
+@media(max-width:360px){.app.popup{width:100%;padding:0 15px}.quick-heading{gap:8px}.quick-heading h1{font-size:12px}.quick-period button{font-size:8px;padding:6px}.quick-distance{padding:18px}.quick-distance-value strong{font-size:57px}.quick-metrics{padding:14px 18px;gap:10px}.quick-metrics>div+div{padding-left:12px}.quick-metrics dt{font-size:9px}.quick-metrics dd{font-size:23px}.quick-metrics>div>span{font-size:8px}.quick-status p{font-size:8px}.quick-insights>span:nth-child(2)>span{font-size:8px}.quick-actions>.button{padding:9px 10px}}
