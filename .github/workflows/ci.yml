@@ -20,6 +20,8 @@ jobs:
         with:
           node-version: '22'
           cache: npm
+      - name: Use the verified lockfile package manager
+        run: npm install --global npm@11.21.2
       - name: Install locked dependencies
         run: npm ci
       - name: Typecheck

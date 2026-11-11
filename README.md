@@ -103,7 +103,7 @@ Collection requires an enabled website, a visible document, and document focus. 
 
 ## Development
 
-Requires **Node.js 22.12+** and npm. Dependencies are locked in [package-lock.json](package-lock.json).
+Requires **Node.js 22.12+** and **npm 11.21.2+**. The verified package-manager release is declared in [package.json](package.json) and pinned in CI. Older npm releases can incorrectly reject optional native/WASM dependencies during a cross-platform clean install. Dependencies are locked in [package-lock.json](package-lock.json).
 
 | npm script | Purpose |
 | --- | --- |
