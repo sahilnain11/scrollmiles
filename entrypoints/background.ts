@@ -1,5 +1,5 @@
 import { defineBackground } from 'wxt/utils/define-background';
-import { applyCheckpoint, clearHistory, clearSiteHistory, getWeek, getSiteWeek, openStatsDatabase, pruneHistory, type StatsConnection } from '../src/storage/database';
+import { applyCheckpoint, clearHistory, clearSiteHistory, getWeek, getSiteWeek, getComparisonDays, openStatsDatabase, pruneHistory, type StatsConnection } from '../src/storage/database';
 import { readSettings, writeSettings } from '../src/storage/settings';
 import { ALL_SITE_ORIGINS, canTrackUrl, normalizeSite, sitePattern } from '../src/utils/sites';
 import { isCheckpoint } from '../src/utils/validation';
@@ -105,13 +105,15 @@ export default defineBackground(() => {
     switch (request.type) {
       case 'GET_SNAPSHOT': {
         const db = await getDatabase();
-        await pruneHistory(db);
+        const now = new Date();
+        await pruneHistory(db, now);
         // Finish a disable/delete even if the worker stopped after saving consent.
         await finishDetailedDeletion(settings, db);
         return {
-          settings, days: await getWeek(db),
-          siteHours: settings.siteInsightsEnabled ? await getSiteWeek(db) : [],
-          capabilities: { allSiteAccess: true, siteInsights: true },
+          settings, days: await getWeek(db, now),
+          comparisonDays: await getComparisonDays(db, now),
+          siteHours: settings.siteInsightsEnabled ? await getSiteWeek(db, now) : [],
+          capabilities: { allSiteAccess: true, siteInsights: true, smartInsights: true },
         };
       }
       case 'SET_SITE_INSIGHTS': {

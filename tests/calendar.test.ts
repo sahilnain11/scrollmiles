@@ -9,6 +9,10 @@ import { describe, expect, it } from 'vitest';
 const source = readFileSync(new URL('../src/analytics/metrics.ts', import.meta.url), 'utf8');
 const compiled = transpileModule(source, { compilerOptions: { module: ModuleKind.ESNext, target: ScriptTarget.ES2022 } }).outputText;
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(compiled).toString('base64')}`;
+const insightSource = readFileSync(new URL('../src/analytics/insights.ts', import.meta.url), 'utf8');
+const insightCompiled = transpileModule(insightSource, { compilerOptions: { module: ModuleKind.ESNext, target: ScriptTarget.ES2022 } }).outputText
+  .replace("'./metrics'", JSON.stringify(moduleUrl));
+const insightUrl = `data:text/javascript;base64,${Buffer.from(insightCompiled).toString('base64')}`;
 
 function dates(zone: string, instants: string[]) {
   const script = `const {localDate,daysAgo,lastSevenDays}=await import(${JSON.stringify(moduleUrl)});
@@ -22,6 +26,18 @@ function dates(zone: string, instants: string[]) {
 }
 
 describe('isolated timezone and DST calendar checks', () => {
+  it('keeps 14 distinct completed comparison dates across DST and timezones', () => {
+    for (const zone of ['America/New_York', 'Asia/Kolkata', 'Pacific/Kiritimati']) {
+      const script = `const {compareCompleteWeeks}=await import(${JSON.stringify(insightUrl)});
+        const {daysAgo}=await import(${JSON.stringify(moduleUrl)});
+        const results=['2026-03-09T12:00:00Z','2026-11-02T12:00:00Z'].map(value=>{
+          const now=new Date(value); const days=Array.from({length:14},(_,index)=>({date:daysAgo(index+1,now),distancePx:1,actions:1,activeMs:0}));
+          const result=compareCompleteWeeks(days,now);return {state:result.state,current:result.current,previous:result.previous,unique:new Set(days.map(day=>day.date)).size};
+        });console.log(JSON.stringify(results));`;
+      const results = JSON.parse(execFileSync(process.execPath, ['--input-type=module', '-e', script], { env: { ...process.env, TZ: zone }, encoding: 'utf8' })) as { state: string; unique: number; current: { recordedDays: number }; previous: { recordedDays: number } }[];
+      for (const result of results) expect(result).toMatchObject({ state: 'ready', unique: 14, current: { recordedDays: 7 }, previous: { recordedDays: 7 } });
+    }
+  });
   it('keeps the same day and seven distinct dates across spring-forward', () => {
     const results = dates('America/New_York', ['2026-03-08T06:59:59Z', '2026-03-08T07:00:01Z']);
     expect(results.map(({ day }) => day)).toEqual(['2026-03-08', '2026-03-08']);

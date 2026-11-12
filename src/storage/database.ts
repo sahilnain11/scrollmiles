@@ -93,12 +93,18 @@ export async function clearHistory(db: StatsConnection): Promise<void> {
   await transaction.done;
 }
 
-export async function getWeek(db: StatsConnection): Promise<DayStats[]> {
-  return db.getAll('days', IDBKeyRange.bound(daysAgo(6), localDate()));
+export async function getWeek(db: StatsConnection, now = new Date()): Promise<DayStats[]> {
+  return db.getAll('days', IDBKeyRange.bound(daysAgo(6, now), localDate(now)));
 }
 
-export async function getSiteWeek(db: StatsConnection): Promise<SiteHourStats[]> {
-  return db.getAllFromIndex('siteHours', 'date', IDBKeyRange.bound(daysAgo(6), localDate()));
+/** Read existing aggregates, not new collection or inferred coverage. */
+export async function getComparisonDays(db: StatsConnection, now = new Date()): Promise<DayStats[]> {
+  const rows = await db.getAll('days', IDBKeyRange.bound(daysAgo(14, now), daysAgo(1, now)));
+  return rows.map(({ date, distancePx, actions, activeMs }) => ({ date, distancePx, actions, activeMs }));
+}
+
+export async function getSiteWeek(db: StatsConnection, now = new Date()): Promise<SiteHourStats[]> {
+  return db.getAllFromIndex('siteHours', 'date', IDBKeyRange.bound(daysAgo(6, now), localDate(now)));
 }
 
 /** Detailed deletion never deletes anonymous totals or deduplication state. */

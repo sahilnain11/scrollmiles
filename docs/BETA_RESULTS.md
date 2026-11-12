@@ -1,13 +1,13 @@
-# Beta check results — November 11, 2026
+# Beta check results — latest execution November 12, 2026
 
 ## Summary
 
 **Local automated checks passed. Not a public-release sign-off.**
 
 - Strict TypeScript: passed.
-- Vitest: **132 tests in 15 files** cover measurement, storage, policy/authorization, UI, settings migration, hourly collector/calendar boundaries, detailed consent/deletion, worker compatibility, site/chart interactions, popup/dashboard states, anonymous Wrapped models, rendering and preview lifecycle. See the execution records below.
+- Vitest: **153 tests in 17 files** cover measurement, storage, policy/authorization, UI, settings migration, hourly collector/calendar boundaries, detailed consent/deletion, worker compatibility, site/chart interactions, popup/dashboard states, anonymous Wrapped models, rendering/preview lifecycle, deterministic Smart Insights and comparable-date/heatmap rules. See the execution records below.
 - Production build: passed; assets generated locally.
-- Playwright: **28 tests** cover the original production suite plus opted-in site insights, the compact production popup document, the polished dashboard, and exact PNG previews. See the latest execution record below.
+- Playwright: **30 tests** cover the original production suite plus opted-in site insights, the compact production popup document, the polished dashboard, exact PNG previews, and the Smart Insights consent/comparison/deletion flow. See the latest execution record below.
 - Full npm dependency audit: **0 known vulnerabilities** at execution time. This is not a security certification.
 - Editor diagnostics: no errors.
 
@@ -24,7 +24,7 @@
 | Permissions | Chrome settings pre-approve fixture hosts, then the real UI calls `chrome.permissions.request`; the native permission bubble is not clicked |
 | Clock checks | Controlled collector timers and isolated Node timezone processes; the Mac's clock/timezone is not changed |
 
-No extension has been submitted to the Chrome Web Store or licensed for public distribution. Source-code backup to the owner's private GitHub repository was separately requested; this is not store publication or an upload of browsing data. No owner's existing browsing data or profile was modified by these tests. Synthetic statistics are confined to test fixtures and temporary profiles, not seeded into the production UI.
+No extension has been submitted to the Chrome Web Store or licensed for public distribution. Source-code backup was separately requested, initially to a private GitHub repository; the owner later explicitly approved public source visibility. Neither is store publication or an upload of browsing data. No owner's existing browsing data or profile was modified by these tests. Synthetic statistics are confined to test fixtures and temporary profiles, not seeded into the production UI.
 
 ## Executed smoke/compatibility matrix
 
@@ -160,6 +160,21 @@ One intervening local rerun failed to observe resumed/initial movement in two pr
 
 The separate [browser-active time and sessions proposal](BROWSER_TIME_DESIGN.md) is **design only**, not a runtime feature or approved measurement algorithm. It outlines a new opt-in/permission review, conservative eligibility and interruption rules, session boundaries, atomic persistence and acceptance tests. No browser-active duration, sessions, timing consent or `idle` permission has been implemented. Those product/error-bound decisions require separate approval before collection work.
 
+## Strategy-driven Smart Insights 1.0 — November 12
+
+The owner supplied the [product strategy](product_startegy.md) and requested continued implementation. Its immediate next milestone prioritizes meaningful observations from existing data, not browser-time/session collection or the entire roadmap. The strategy is preserved without edits, including its supplied filename.
+
+- Added deterministic daily/seven-day recorded summaries, an explicit leading date with all ties, and peak local hour by retained recorded-site distance when hourly detail is already opted in. No usual-weekday, longest-burst, personality, attention or lifetime-record claims are inferred.
+- Comparison reads the previous **14 complete dates** of existing anonymous daily aggregates. The seven-day overview API remains unchanged; optional `comparisonDays` and capability support are additive. A single local date anchor is passed to snapshot queries. The DB remains v2, retention stays 90 days and collector/checkpoint logic is unchanged.
+- Two seven-date complete periods exclude partial today. Available totals, ranges and saved-day counts are shown. Absolute/percentage changes require a saved aggregate for every date; absent rows do not become confirmed zero baselines. Previous zero suppresses percentages. Saved rows still do not prove continuous collection, so changes are explicitly neutral recorded differences, not improvements. An older worker gets reload guidance, not invented comparison zeros.
+- The heatmap is always seven dates × 24 collection-time hour labels, not a reconstruction of anonymous daily history. It requires existing detailed opt-in, aggregates only retained site/hour values into site-free view models, and distinguishes missing records from actual zero-valued records. Distance, burst starts and active scrolling can be selected. Blank cells are not called inactivity; repeated DST hours merge and timezone travel does not relocate old labels.
+- Keyboard roving focus, arrow/Home/End/Ctrl+Home/End, exact cell readouts and a full numeric table work in production Chromium. The narrow grid scrolls internally with sticky date headers. Both-theme Axe A/AA checks pass. No motion or new dependencies are introduced. Stale reads suppress new observations.
+- Actual scrolling before/after consent verifies no backfill; per-site deletion and insights opt-out remove hourly observations while preserving combined totals. Global deletion clears the comparison source with existing histories. Policy/epoch handling and offline/site-free Wrapped continue through the existing tests.
+
+Added **21 unit/component/storage/calendar/worker regressions** and **2 production browser cases**. Calendar checks execute the actual pure model in isolated New York DST/Kolkata/Kiritimati processes, not the owner's OS clock. One comparison browser case explicitly seeds synthetic **historical daily aggregates in its disposable profile**, exercising the real DB/worker/UI read path; it does not pretend to measure 14 real days of collection. Actual-current-scroll cases are separate and unseeded. No extension APIs are mocked, and no demo history enters production.
+
+Latest combined local result: **typecheck passed; 153 Vitest tests passed in 17 files; production build passed; all 30 Chromium tests passed; full npm 11.21.2 dependency audit found 0 known vulnerabilities; editor diagnostics showed no errors**. Dark/light and narrow Smart Insights screenshots were inspected using local-fixture activity; raw evidence stays ignored. Production manifest reviewed: only `storage`/`scripting`, optional HTTP/HTTPS hosts, no mandatory hosts/static scripts, no incognito, `connect-src 'none'`. Manifest hash remains the value recorded above. The [detailed measurement notes](SMART_INSIGHTS.md) document conservative comparison availability and unchanged privacy boundaries. Manual device, native prompt, live-site and VoiceOver checks remain outstanding.
+
 ## Reproducible evidence
 
 - [Original production-extension browser suite](../tests/e2e/extension.spec.ts).
@@ -167,6 +182,7 @@ The separate [browser-active time and sessions proposal](BROWSER_TIME_DESIGN.md)
 - [Collector simulations](../tests/collector.test.ts), [timezone/DST checks](../tests/calendar.test.ts), [UI permission checks](../tests/ui.test.tsx), and [background authorization checks](../tests/background.test.ts).
 - [Popup component checks](../tests/popup.test.tsx) and [production popup browser checks](../tests/e2e/popup.spec.ts).
 - [Dashboard component checks](../tests/dashboard.test.tsx), [Wrapped model/lifecycle checks](../tests/wrapped.test.tsx), [PNG renderer checks](../tests/card-renderer.test.ts), and [actual preview browser checks](../tests/e2e/wrapped.spec.ts).
+- [Smart Insights models](../tests/insights.test.ts), [Smart Insights component checks](../tests/smart-insights-ui.test.tsx) and [production consent/heatmap/comparison cases](../tests/e2e/smart-insights.spec.ts).
 - Screenshots and PNGs are generated in ignored local test output on each run. They are illustrative test-fixture data, not the owner's activity or store-ready marketing evidence.
 
 Run the typecheck, unit/UI tests, production build, browser tests, and dependency audit described in [README.md](../README.md#development). These results describe the source/build tested today, not future edits.

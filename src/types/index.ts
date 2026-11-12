@@ -37,9 +37,11 @@ export interface SiteHourStats extends DayStats {
 export interface Snapshot {
   settings: Settings;
   days: DayStats[];
+  /** Existing anonymous totals for the previous 14 complete local days. */
+  comparisonDays?: DayStats[];
   siteHours?: SiteHourStats[];
   /** Absent in an older worker: the UI must not request unsupported access. */
-  capabilities?: { allSiteAccess: boolean; siteInsights?: boolean };
+  capabilities?: { allSiteAccess: boolean; siteInsights?: boolean; smartInsights?: boolean };
 }
 
 export type Request =

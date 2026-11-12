@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { daysAgo, localDate } from '../src/analytics/metrics';
-import { applyCheckpoint, clearHistory, openStatsDatabase, pruneHistory, type StatsConnection } from '../src/storage/database';
+import { applyCheckpoint, clearHistory, getComparisonDays, openStatsDatabase, pruneHistory, type StatsConnection } from '../src/storage/database';
 import type { Checkpoint } from '../src/types';
 
 let db: StatsConnection;
@@ -14,6 +14,17 @@ beforeEach(async () => { db = await openStatsDatabase(`test-${crypto.randomUUID(
 afterEach(() => db.close());
 
 describe('atomic checkpoint storage', () => {
+  it('reads only 14 complete anonymous days without changing retention or writing missing zeros', async () => {
+    const now = new Date(2026, 10, 12, 12);
+    for (let index = -1; index <= 16; index++) await db.put('days', { date: daysAgo(index, now), distancePx: 100, actions: 1, activeMs: 0 });
+    const records = await getComparisonDays(db, now);
+    expect(records).toHaveLength(14);
+    expect(records[0]?.date).toBe('2026-10-29');
+    expect(records.at(-1)?.date).toBe('2026-11-11');
+    expect(Object.keys(records[0]!).sort()).toEqual(['actions', 'activeMs', 'date', 'distancePx']);
+    expect(await db.count('days')).toBe(18);
+    expect(db.version).toBe(2);
+  });
   it('applies a retry only once', async () => {
     const data = checkpoint();
     await applyCheckpoint(db, data);

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { localDate } from '../src/analytics/metrics';
+import { daysAgo, localDate } from '../src/analytics/metrics';
 import { openStatsDatabase, type StatsConnection } from '../src/storage/database';
 import type { Checkpoint, Response, Settings, Snapshot } from '../src/types';
 
@@ -87,6 +87,23 @@ afterEach(() => {
 });
 
 describe('background authorization and lifecycle', () => {
+  it('returns bounded anonymous comparison history without expanding the seven-day or opted-out detail view', async () => {
+    for (let index = 0; index <= 16; index++) await state.db!.put('days', { date: daysAgo(index), distancePx: 100, actions: 1, activeMs: 0 });
+    const result = await request<Snapshot>({ type: 'GET_SNAPSHOT' });
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.data.capabilities?.smartInsights).toBe(true);
+    expect(result.data.days).toHaveLength(7);
+    expect(result.data.comparisonDays).toHaveLength(14);
+    expect(result.data.comparisonDays?.[0]?.date).toBe(daysAgo(14));
+    expect(result.data.comparisonDays?.at(-1)?.date).toBe(daysAgo(1));
+    expect(result.data.siteHours).toEqual([]);
+    expect(JSON.stringify(result.data.comparisonDays)).not.toContain('example.com');
+    expect((await request({ type: 'GET_SNAPSHOT' }, collector)).ok).toBe(false);
+    await request({ type: 'CLEAR_DATA' });
+    const cleared = await request<Snapshot>({ type: 'GET_SNAPSHOT' });
+    expect(cleared.ok && cleared.data.comparisonDays).toEqual([]);
+  });
   it('accepts known extension UI pages with section anchors and query parameters', async () => {
     for (const page of ['popup.html', 'dashboard.html', 'options.html']) {
       for (const suffix of ['#website-insights', '?view=details#website-insights']) {

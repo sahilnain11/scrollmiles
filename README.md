@@ -4,6 +4,8 @@
 
 A playful, privacy-first Chrome extension that turns everyday scrolling into a small personal journey. This is the first working beta, not the full product described in [the original context](ScrollMiles_Project_Context.md).
 
+The [product strategy](docs/product_startegy.md) sets the next milestones: understand existing scrolling data first, add fun without pressure, and review browser-time/routine collection separately. Smart Insights 1.0 implements the current **Understand** slice—not the entire roadmap.
+
 <p>
 	<a href="#a-look-inside">Screenshots</a> ·
 	<a href="#try-it-in-chrome">Try the beta</a> ·
@@ -76,6 +78,20 @@ The overview uses the same warm dark/lime/light palette as the popup and insight
 
 The collection card offers global pause/resume when website access is configured. Its status describes the collection setting, not proof the current tab is tracked. First use keeps exact-host setup available; ongoing access/exclusion management lives in settings. Section links lead to Website insights and Wrapped without changing consent. Measurement explanations are available in a collapsed disclosure, not mixed into every chart.
 
+### Smart Insights — observations, not guesses
+
+Open **Smart insights** from the dashboard section links. Deterministic calculations use existing local aggregates; there are no AI calls, new permissions, new tracking fields or database migration.
+
+- **Recorded scrolls:** daily or rolling-seven-day distance, burst totals and active scrolling, synchronized with the overview period. The current day is explicitly partial.
+- **Most distance recorded:** an actual date in the selected window, with all ties reported—not a claim about a typical weekday or a lifetime record. Empty data produces no inferred pattern.
+- **Peak recorded hour:** the hour with the most **recorded-site distance**, only when Website insights is already enabled. In the seven-day view, each hour is summed across those dates. Ties are explicit; anonymous daily totals cannot reveal hours.
+- **Two complete weeks:** the last seven complete local dates versus the seven before them, excluding today from both windows. The worker reads only those 14 days of already-retained anonymous totals; the normal overview still reads seven. Both date ranges, totals and saved-day counts are shown. Changes are calculated only when every comparison date has a saved aggregate. Missing rows can mean inactivity, pauses or no collection, so they are not treated as verified zeros. A zero previous total has no percentage. Even saved rows do not prove continuous collection; changes are recorded differences, not improvements or attention scores.
+- **Your scrolling rhythm:** a seven-date × 24-hour heatmap of existing opted-in details. Switch distance, burst starts or active scrolling; use arrows, Home/End and Ctrl+Home/End, or expand the exact table. The heatmap always shows seven dates even when the summary is Today. Empty cells mean no recorded detail, **not confirmed inactivity**. On narrow screens the grid scrolls sideways while date labels remain visible. Original local hour labels are retained, repeated DST hours merge, and timezone changes do not regroup old rows.
+
+Enabling Website insights remains a separate settings confirmation; opening Smart insights never enables it. There is no hourly backfill. Opt-out/per-site deletion removes the corresponding heatmap detail while keeping anonymous totals; global deletion clears both. Failed loads suppress fresh observations, and an older worker without comparison history gives reload guidance rather than fake zeros.
+
+The [measurement and acceptance notes](docs/SMART_INSIGHTS.md) explain the deliberately conservative baseline rule. Longest individual burst, monthly reporting, achievements, personality types and browser-active/session timing are **not** added by this milestone; daily/hourly aggregates cannot recover an individual burst maximum. No retention period or Wrapped contents are changed.
+
 ### Wrapped — preview, then download
 
 Both popup and dashboard open a modal containing the **actual 1200 × 1200 PNG**, not a separate HTML approximation. Choose Today or Last 7 days and inspect the date/range and combined distance, bursts, and active scrolling. Opening the preview does not save or post anything; **Download PNG** saves the exact rendered image you see.
@@ -137,6 +153,7 @@ Use the real Chromium integration suite for permission, aggregation, pause, dele
 - Vertical scrolling distance in CSS pixels, counting both directions.
 - Scroll bursts and estimated active scrolling duration.
 - Today's totals and a rolling seven-local-calendar-day summary.
+- Local Smart Insights: honest daily/seven-day observations, completed-period comparisons when enough saved history exists, and a consent-gated day/hour heatmap with exact values.
 - Real zero-state UI: no fabricated data or invented improvement percentages.
 - Dark-first popup, full-page dashboard, light theme, and privacy settings.
 - Branded Chrome toolbar icons and an offline, bundled privacy notice.
@@ -213,11 +230,13 @@ Development mode may need a supported local Chrome installation and WXT's develo
 | [src/storage/settings.ts](src/storage/settings.ts) | Local settings and policy epoch |
 | [src/analytics/metrics.ts](src/analytics/metrics.ts) | Local calendar grouping and display formatting |
 | [src/analytics/sites.ts](src/analytics/sites.ts) | Pure per-site ranking, hour summaries, and seven-day reporting |
+| [src/analytics/insights.ts](src/analytics/insights.ts) | Deterministic summaries, completed-period comparisons and site-free hourly view models |
 | [src/tracking/HourlyScrollTracker.ts](src/tracking/HourlyScrollTracker.ts) | Continuous-burst attribution across hour/day boundaries |
 | [src/components/SiteInsights.tsx](src/components/SiteInsights.tsx) | Explicit detailed-history consent, live site analysis, accessible charts, and deletion |
 | [src/components/App.tsx](src/components/App.tsx) | Shared popup/dashboard/settings UI |
 | [src/components/PopupOverview.tsx](src/components/PopupOverview.tsx) | Compact real-data popup, coverage/pause status, onboarding and navigation |
 | [src/components/DashboardOverview.tsx](src/components/DashboardOverview.tsx) | Dashboard hierarchy, collection coverage, seven-day chart and preview entry |
+| [src/components/SmartInsights.tsx](src/components/SmartInsights.tsx) | Honest insight cards, recorded-history comparisons and accessible opt-in heatmap |
 | [src/components/WrappedPreview.tsx](src/components/WrappedPreview.tsx) | Actual-image modal, explicit refresh/download, focus and temporary-image lifecycle |
 | [src/components/PrivacyPage.tsx](src/components/PrivacyPage.tsx) | Offline privacy notice, independent of historical database/worker availability |
 | [src/privacy/policy.ts](src/privacy/policy.ts) | Single source of privacy notice text; publisher/contact review required before public release |
