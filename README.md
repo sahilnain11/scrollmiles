@@ -20,7 +20,7 @@ A playful, privacy-first Chrome extension that turns everyday scrolling into a s
 <picture>
 	<source media="(prefers-color-scheme: dark)" srcset="docs/images/dashboard-dark.webp">
 	<source media="(prefers-color-scheme: light)" srcset="docs/images/dashboard-light.webp">
-	<img src="docs/images/dashboard-dark.webp" alt="ScrollMiles dashboard overview crop with estimated distance, tracking coverage and pause, active scrolling, burst and raw pixel totals, a seven-day chart, and Wrapped preview entry. Illustrative local test activity." width="1152" height="1184">
+	<img src="docs/images/dashboard-dark.webp" alt="ScrollMiles dashboard overview crop with estimated distance, tracking coverage and pause, active scrolling, burst and raw pixel totals, a seven-day chart, and Wrapped preview entry. Illustrative local test activity." width="1152">
 </picture>
 
 *Dashboard overview crop. The image follows your preferred light/dark theme; all distances are screen-equivalent estimates.*
@@ -34,8 +34,8 @@ A playful, privacy-first Chrome extension that turns everyday scrolling into a s
 	</thead>
 	<tbody>
 		<tr>
-			<td valign="top"><img src="docs/images/popup-dark.webp" alt="Dark ScrollMiles popup showing a real test total, active scrolling, bursts, pause, separate insights consent, and dashboard/Wrapped controls." width="390" height="600"></td>
-			<td valign="top"><img src="docs/images/wrapped-preview-dark.webp" alt="Dark Wrapped modal showing the actual site-free PNG, selected seven-day dates and totals, explicit refresh, and Download PNG. Illustrative local test activity." width="850" height="788"></td>
+			<td valign="top"><img src="docs/images/popup-dark.webp" alt="Dark ScrollMiles popup showing a real test total, active scrolling, bursts, pause, separate insights consent, and dashboard/Wrapped controls." width="390"></td>
+			<td valign="top"><img src="docs/images/wrapped-preview-dark.webp" alt="Dark Wrapped modal showing the actual site-free PNG, selected seven-day dates and totals, explicit refresh, and Download PNG. Illustrative local test activity." width="850"></td>
 		</tr>
 		<tr>
 			<td>Compact production popup document, captured in a bounded test tab—not Chrome’s physical toolbar window.</td>
@@ -109,7 +109,7 @@ Open **Privacy & settings → Website insights → Set up website insights**. Th
 <picture>
 	<source media="(prefers-color-scheme: dark)" srcset="docs/images/site-insights-dark.webp">
 	<source media="(prefers-color-scheme: light)" srcset="docs/images/site-insights-light.webp">
-	<img src="docs/images/site-insights-dark.webp" alt="Opted-in Website insights with two synthetic scrollmiles.test hosts, exact-site distance share, active scrolling, burst starts, and an hourly chart. Illustrative local test activity, not website usage time." width="1116" height="1051" loading="lazy">
+	<img src="docs/images/site-insights-dark.webp" alt="Opted-in Website insights with two synthetic scrollmiles.test hosts, exact-site distance share, active scrolling, burst starts, and an hourly chart. Illustrative local test activity, not website usage time." width="1116" loading="lazy">
 </picture>
 
 *Illustrative local-fixture activity after explicit insights opt-in. The hostnames are test sites; the share is of recorded-site scrolling distance, not browser time.*
