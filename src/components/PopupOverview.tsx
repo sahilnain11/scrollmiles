@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { ArrowDownToLine, ArrowUpRight, BarChart3, ChevronRight, CircleHelp, Footprints, Globe2, Mouse, Pause, Play, ShieldCheck, Timer } from 'lucide-react';
+import { ArrowUpRight, BarChart3, ChevronRight, CircleHelp, Footprints, Globe2, Mouse, Pause, Play, ShieldCheck, Sparkles, Timer } from 'lucide-react';
 import { daysAgo, distanceLabel } from '../analytics/metrics';
 import { siteScrollTime } from '../analytics/sites';
 import { send } from '../utils/client';
@@ -60,7 +60,7 @@ export function PopupOverview({ snapshot, totals, period, onPeriodChange, disabl
 
     {!firstUse && <a className="quick-insights" href={settings.siteInsightsEnabled ? 'dashboard.html#website-insights' : 'options.html'} target="_blank" rel="noreferrer"><span className="quick-insights-icon"><BarChart3 size={17} /></span><span><strong>Website insights <small>{settings.siteInsightsEnabled ? 'On' : 'Off'}</small></strong><span>{settings.siteInsightsEnabled ? 'Explore your sites and hourly rhythm' : 'Optional site-by-site detail. Your choice.'}</span></span><ChevronRight size={16} /></a>}
 
-    <nav className="quick-actions" aria-label="Popup actions"><a className="button primary" href="dashboard.html" target="_blank" rel="noreferrer">Your full story<ArrowUpRight size={15} /></a><button className="button ghost quick-export" disabled={disabled || statusUnverified} onClick={onExport} aria-label={`Download Wrapped card for ${period === 'today' ? 'today' : 'the last 7 days'}`} title="Download a site-free PNG"><ArrowDownToLine size={16} /><span>Wrapped</span></button></nav>
+    <nav className="quick-actions" aria-label="Popup actions"><a className="button primary" href="dashboard.html" target="_blank" rel="noreferrer">Your full story<ArrowUpRight size={15} /></a><button className="button ghost quick-export" disabled={disabled || statusUnverified} onClick={onExport} aria-label={`Preview Wrapped card for ${period === 'today' ? 'today' : 'the last 7 days'}`} title="Preview a site-free PNG before downloading"><Sparkles size={16} /><span>Wrapped</span></button></nav>
 
     <details className="quick-method"><summary><CircleHelp size={12} />What do these numbers mean?</summary><p>Distance sums movement down and up in CSS pixels. Metres/kilometres are screen-equivalent estimates, not finger travel or exercise.</p><p>Active scrolling sums event-to-event intervals within a burst, not time on a website or watching videos. A single event can add distance with zero timed seconds; positive sub-second time shows &lt;1s. A burst ends after a 2-second pause.</p><p className="quick-raw">{Math.round(totals.distancePx).toLocaleString()} CSS px in this period. <ShieldCheck size={12} />Stored on this device.</p></details>
   </div>;

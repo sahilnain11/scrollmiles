@@ -63,10 +63,15 @@ test('popup fits its quick-glance height with real data and controls global paus
   await popup.bringToFront();
   await popup.getByRole('button', { name: 'Last 7 days', exact: true }).click();
   await expect(popup.getByRole('heading', { name: 'Your week, in scrolling.' })).toBeVisible();
+  await popup.getByRole('button', { name: 'Preview Wrapped card for the last 7 days' }).click();
+  await expect(popup.getByRole('dialog', { name: 'Your Wrapped preview' })).toBeVisible();
+  await expect(popup.getByRole('img', { name: /Wrapped PNG preview/ })).toBeVisible();
   const downloaded = popup.waitForEvent('download');
-  await popup.getByRole('button', { name: 'Download Wrapped card for the last 7 days' }).click();
+  await popup.getByRole('button', { name: 'Download PNG' }).click();
   expect((await downloaded).suggestedFilename()).toBe('scrollmiles-week.png');
-  await expect(popup.getByRole('status')).toContainText('downloaded');
+  await expect(popup.getByRole('dialog', { name: 'Your Wrapped preview' }).getByRole('status')).toContainText('downloaded');
+  await popup.getByRole('button', { name: 'Close Wrapped preview' }).click();
+  await expect(popup.getByRole('button', { name: 'Preview Wrapped card for the last 7 days' })).toBeFocused();
   await popup.getByRole('button', { name: 'Switch to light theme' }).click();
   await expect(popup.locator('html')).toHaveAttribute('data-theme', 'light');
   await audit(popup);

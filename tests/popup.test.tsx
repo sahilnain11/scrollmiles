@@ -5,13 +5,13 @@ import userEvent from '@testing-library/user-event';
 import { App } from '../src/components/App';
 import { daysAgo, localDate } from '../src/analytics/metrics';
 import { send } from '../src/utils/client';
-import { exportCard } from '../src/wrapped/CardRenderer';
+import { downloadCard, renderCard } from '../src/wrapped/CardRenderer';
 import type { Snapshot } from '../src/types';
 
 vi.mock('../src/utils/client', async (importOriginal) => ({
   ...await importOriginal<typeof import('../src/utils/client')>(), send: vi.fn(),
 }));
-vi.mock('../src/wrapped/CardRenderer', () => ({ exportCard: vi.fn().mockResolvedValue(undefined) }));
+vi.mock('../src/wrapped/CardRenderer', () => ({ renderCard: vi.fn().mockResolvedValue(new Blob(['test PNG'], { type: 'image/png' })), downloadCard: vi.fn() }));
 const sendMock = vi.mocked(send);
 const permission = vi.fn<(options: chrome.permissions.Permissions) => Promise<boolean>>();
 let snapshot: Snapshot;
@@ -27,14 +27,19 @@ beforeEach(() => {
     return structuredClone(snapshot);
   });
   permission.mockReset().mockResolvedValue(false);
-  vi.mocked(exportCard).mockClear();
+  vi.mocked(renderCard).mockClear();
+  vi.mocked(downloadCard).mockClear();
+  vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:popup-test');
+  vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => undefined);
+  vi.spyOn(HTMLDialogElement.prototype, 'showModal').mockImplementation(function (this: HTMLDialogElement) { this.setAttribute('open', ''); });
+  vi.spyOn(HTMLDialogElement.prototype, 'close').mockImplementation(function (this: HTMLDialogElement) { this.removeAttribute('open'); });
   vi.stubGlobal('chrome', { runtime: { id: 'popup-test' }, permissions: { request: permission } });
 });
 
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); vi.restoreAllMocks(); vi.useRealTimers(); });
 
 describe('popup quick glance', () => {
-  it('uses real period totals and exports exactly the selected anonymous aggregate', async () => {
+  it('previews real period totals and downloads only after explicit confirmation', async () => {
     render(<App page="popup" />);
     expect(await screen.findByText('<1s')).toBeTruthy();
     expect(screen.getByText('2', { selector: 'dd' })).toBeTruthy();
@@ -42,9 +47,13 @@ describe('popup quick glance', () => {
     await user.click(screen.getByRole('button', { name: 'Last 7 days' }));
     expect(screen.getByRole('heading', { name: 'Your week, in scrolling.' })).toBeTruthy();
     expect(screen.getByText('5s')).toBeTruthy();
-    await user.click(screen.getByRole('button', { name: 'Download Wrapped card for the last 7 days' }));
-    expect(exportCard).toHaveBeenCalledWith({ date: 'week', distancePx: 1500, actions: 5, activeMs: 5500 }, true);
-    expect(JSON.stringify(vi.mocked(exportCard).mock.calls)).not.toContain('example.com');
+    await user.click(screen.getByRole('button', { name: 'Preview Wrapped card for the last 7 days' }));
+    await screen.findByRole('img', { name: /Wrapped PNG preview/ });
+    expect(renderCard).toHaveBeenCalledWith(expect.objectContaining({ stats: { date: 'week', distancePx: 1500, actions: 5, activeMs: 5500 }, period: 'week' }));
+    expect(downloadCard).not.toHaveBeenCalled();
+    await user.click(screen.getByRole('button', { name: 'Download PNG' }));
+    expect(downloadCard).toHaveBeenCalledWith('blob:popup-test', 'scrollmiles-week.png');
+    expect(JSON.stringify(vi.mocked(renderCard).mock.calls)).not.toContain('example.com');
   });
 
   it('pauses and resumes with one action while keeping website selection out of the popup', async () => {
@@ -116,7 +125,7 @@ describe('popup quick glance', () => {
     await act(async () => { await vi.advanceTimersByTimeAsync(2000); });
     expect(screen.getByText('Status unavailable')).toBeTruthy();
     expect((screen.getByRole('button', { name: /Pause tracking/ }) as HTMLButtonElement).disabled).toBe(true);
-    expect((screen.getByRole('button', { name: /Download Wrapped card/ }) as HTMLButtonElement).disabled).toBe(true);
+    expect((screen.getByRole('button', { name: /Preview Wrapped card/ }) as HTMLButtonElement).disabled).toBe(true);
     await act(async () => { await vi.advanceTimersByTimeAsync(2000); });
     expect(screen.queryByRole('alert')).toBeNull();
     expect(screen.getByText('Tracking enabled')).toBeTruthy();

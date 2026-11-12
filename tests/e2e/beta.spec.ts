@@ -189,9 +189,11 @@ test('cancelled deletion preserves history; confirmed deletion leaves exported P
   await expect.poll(beta.distance).toBe(650);
   const dashboard = await beta.context.newPage();
   await dashboard.goto(`chrome-extension://${beta.extensionId}/dashboard.html`);
-  await expect(dashboard.getByRole('button', { name: 'Download my Wrapped' })).toBeEnabled();
+  await expect(dashboard.getByRole('button', { name: 'Preview my Wrapped' })).toBeEnabled();
+  await dashboard.getByRole('button', { name: 'Preview my Wrapped' }).click();
+  await expect(dashboard.getByRole('img', { name: /Wrapped PNG preview/ })).toBeVisible();
   const pending = dashboard.waitForEvent('download');
-  await dashboard.getByRole('button', { name: 'Download my Wrapped' }).click();
+  await dashboard.getByRole('button', { name: 'Download PNG' }).click();
   const download = await pending;
   const image = testInfo.outputPath('wrapped-local-fixture.png');
   await download.saveAs(image);
@@ -199,6 +201,7 @@ test('cancelled deletion preserves history; confirmed deletion leaves exported P
   expect(png.readUInt32BE(16)).toBe(1200);
   expect(png.readUInt32BE(20)).toBe(1200);
   await testInfo.attach('Local fixture Wrapped — not user activity', { path: image, contentType: 'image/png' });
+  await dashboard.getByRole('button', { name: 'Close Wrapped preview' }).click();
   await beta.options.bringToFront();
   await beta.options.getByRole('button', { name: 'Delete history', exact: true }).click();
   await beta.options.getByRole('button', { name: 'Cancel', exact: true }).click();
@@ -232,7 +235,7 @@ test('200% browser zoom preserves CSS pixels and usable keyboard navigation', as
   await dashboard.getByRole('button', { name: 'Last 7 days', exact: true }).focus();
   await dashboard.keyboard.press('Enter');
   await expect(dashboard.getByRole('button', { name: 'Last 7 days', exact: true })).toHaveAttribute('aria-pressed', 'true');
-  await dashboard.locator('summary').focus();
+  await dashboard.getByText('View exact daily totals', { exact: true }).focus();
   await dashboard.keyboard.press('Enter');
   await expect(dashboard.getByRole('table')).toBeVisible();
   const audit = await new AxeBuilder({ page: dashboard }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
@@ -272,7 +275,7 @@ test('real unavailable database is not shown as zero, and retry recovers in the 
   await beta.options.goto(`chrome-extension://${beta.extensionId}/dashboard.html`);
   await expect(beta.options.getByRole('alert')).toContainText('statistics could not be loaded');
   await expect(beta.options.getByText('Scroll bursts', { exact: true })).toHaveCount(0);
-  await expect(beta.options.getByRole('button', { name: 'Download my Wrapped' })).toHaveCount(0);
+  await expect(beta.options.getByRole('button', { name: 'Preview my Wrapped' })).toHaveCount(0);
   const privacy = await beta.context.newPage();
   await privacy.goto(`chrome-extension://${beta.extensionId}/privacy.html`);
   await expect(privacy.getByRole('article', { name: 'Full privacy notice' })).toBeVisible();

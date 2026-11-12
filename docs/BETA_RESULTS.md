@@ -5,9 +5,9 @@
 **Local automated checks passed. Not a public-release sign-off.**
 
 - Strict TypeScript: passed.
-- Vitest: **115 tests in 12 files** cover measurement, storage, policy/authorization, UI, settings migration, hourly collector/calendar boundaries, detailed consent/deletion, worker compatibility, site/chart interactions, and popup quick-glance states. See the execution records below.
+- Vitest: **132 tests in 15 files** cover measurement, storage, policy/authorization, UI, settings migration, hourly collector/calendar boundaries, detailed consent/deletion, worker compatibility, site/chart interactions, popup/dashboard states, anonymous Wrapped models, rendering and preview lifecycle. See the execution records below.
 - Production build: passed; assets generated locally.
-- Playwright: **26 tests** cover the original production suite plus opted-in site insights and the compact production popup document. See the latest execution record below.
+- Playwright: **28 tests** cover the original production suite plus opted-in site insights, the compact production popup document, the polished dashboard, and exact PNG previews. See the latest execution record below.
 - Full npm dependency audit: **0 known vulnerabilities** at execution time. This is not a security certification.
 - Editor diagnostics: no errors.
 
@@ -46,7 +46,7 @@ No extension has been submitted to the Chrome Web Store or licensed for public d
 | Service-worker restart | Pass | Actual worker stop/wake through Chromium lifecycle protocol; same existing collector continues without reset or duplicate totals. |
 | Remove website | Pass | Existing tab stops collecting, host permission removed, previous totals retained; re-adding host works. |
 | Delete cancellation / confirmation | Pass | Cancel preserves totals; confirm clears history and pauses; old-epoch replay rejected in authorization tests. |
-| Wrapped | Pass | PNG header and 1200 × 1200 size verified; generated card visually inspected; existing downloaded file survives history deletion. No websites/URLs shown on the card. |
+| Wrapped | Pass | Actual PNG preview before explicit download; displayed/downloaded bytes and SHA-256 match; 1200 × 1200 size, frozen totals, explicit refresh/period choice, keyboard dismissal, and cross-tab deletion invalidation verified. Existing downloaded file survives history deletion. No websites/URLs shown on the card. |
 | Accessibility | Pass, automated/local keyboard | Axe A/AA checks on dark/light dashboard, popup, selected/all-site settings, privacy notice; keyboard skip-links, selected-period semantics, and data table tested. No VoiceOver conformance claim. |
 | Native Chrome 200% zoom | Pass | `chrome.tabs.setZoom(2)` confirmed; CSS-pixel movement unchanged, keyboard/table usable, no document/app horizontal overflow. Viewport screenshot visually inspected. |
 | Database unavailable | Pass | A deliberately incompatible database in a disposable profile produces an error, not fake zero stats. Privacy notice still reads; retry recovers once the test fault is removed. Transient open failure also tested without restarting the worker. |
@@ -139,12 +139,34 @@ Eight component tests cover period totals/export payload, pause/resume, consent/
 
 Latest local run: **115 unit/UI tests passed in 12 files, 26 production Chromium tests passed, typecheck and production build passed, full dependency audit found 0 known vulnerabilities; editor diagnostics showed no errors**. First-use, populated, paused, both-theme, and narrow screenshots use test-only local-fixture activity and were inspected. Native Chrome action-popup window interaction could not be exercised through the available headless Playwright page interface; this result is explicitly a production-popup-document test, not a claim that physical toolbar/native permission behavior has been certified.
 
+## Dashboard polish and actual Wrapped preview follow-up
+
+The overview now follows the popup/insights hierarchy while retaining the existing warm dark/lime/light colors. A distance hero, collection/coverage card, honest active-scrolling/burst/raw-pixel metrics, interactive seven-day chart with exact table, and dedicated Wrapped entry replace the previous dense layout. Website management remains in settings after setup; first use still supports explicit exact-host access. Section links do not change insights consent. No sample production activity or unsupported browser-time, session or attention statistics were added.
+
+Wrapped now opens a native modal in popup/dashboard with the actual locally rendered PNG. It does not download on open. The selected period and dates are shown; Download PNG uses that image's object URL, not a second render. Captured anonymous totals stay frozen through live snapshot refresh and new scrolling. Explicit Refresh preview totals captures new data. Tracking-policy/deletion epoch changes invalidate the preview, including a change from another settings tab. URLs are revoked when replaced/closed; obsolete asynchronous renders cannot replace the selected image. Failed drawing can retry, unavailable statistics gate download, and zero data stays honest.
+
+Seventeen added unit/component tests cover the anonymous data projection, frozen periods/dates, renderer success/failure, explicit-download lifecycle, obsolete render cleanup, refresh/dismissal, zero/stale dashboard controls, and seven-day selection/table. Existing popup tests now verify preview before export. Two new real Chromium tests cover:
+
+- No automatic download, frozen preview during new real scrolling, explicit refresh, Today/seven-day filenames and actual downloaded PNG dimensions.
+- Byte-for-byte and SHA-256 equality between the displayed PNG and downloaded file. A **test-only** init script observes Blob bytes while delegating the original `URL.createObjectURL`; this instrumentation does not mock extension APIs, the renderer, Canvas, or measured activity. It exists because blob-image response events are not reliable in this runner and production CSP blocks `fetch`.
+- Native modal focus, explicit Tab/Shift+Tab wrap, Escape dismissal and trigger-focus restoration, both-theme Axe A/AA checks, and 390px no-overflow layout.
+- Actual cross-tab Delete history invalidates the displayed card; a fresh preview contains zeros, while an already-downloaded export remains outside extension storage.
+
+The existing browser suite also verifies the redesigned dashboard in both themes and at actual 200% Chrome zoom. Its daily-table keyboard check now selects the named disclosure explicitly rather than assuming it is the only disclosure. Local screenshots use temporary fixture activity and are not real browsing history or a certification of native toolbar, VoiceOver or physical-device behavior.
+
+Latest combined local validation: **132 Vitest tests passed in 15 files; all 28 production Chromium tests passed; typecheck/build passed; full npm 11.21.2 audit reported 0 known vulnerabilities**. Production manifest still contains only `storage`/`scripting`, optional HTTP/HTTPS hosts, no mandatory hosts/static scripts, no incognito, and `connect-src 'none'`. Collection, storage schema, permissions, consent, and retention are unchanged by this UI work.
+
+One intervening local rerun failed to observe resumed/initial movement in two pre-existing collection cases and took roughly 15 minutes per failing case despite the configured 45-second test timeout. The cause was not established; no production collection change or weakened assertion was used to dismiss it. Both affected suites then passed (12/12), followed by the complete matrix (28/28) on the same build. The final pass is not a claim that local browser/focus timing is flake-free.
+
+The separate [browser-active time and sessions proposal](BROWSER_TIME_DESIGN.md) is **design only**, not a runtime feature or approved measurement algorithm. It outlines a new opt-in/permission review, conservative eligibility and interruption rules, session boundaries, atomic persistence and acceptance tests. No browser-active duration, sessions, timing consent or `idle` permission has been implemented. Those product/error-bound decisions require separate approval before collection work.
+
 ## Reproducible evidence
 
 - [Original production-extension browser suite](../tests/e2e/extension.spec.ts).
 - [Expanded beta browser suite](../tests/e2e/beta.spec.ts) and [isolated local fixture](../tests/e2e/beta-fixture.ts).
 - [Collector simulations](../tests/collector.test.ts), [timezone/DST checks](../tests/calendar.test.ts), [UI permission checks](../tests/ui.test.tsx), and [background authorization checks](../tests/background.test.ts).
 - [Popup component checks](../tests/popup.test.tsx) and [production popup browser checks](../tests/e2e/popup.spec.ts).
+- [Dashboard component checks](../tests/dashboard.test.tsx), [Wrapped model/lifecycle checks](../tests/wrapped.test.tsx), [PNG renderer checks](../tests/card-renderer.test.ts), and [actual preview browser checks](../tests/e2e/wrapped.spec.ts).
 - Screenshots and PNGs are generated in ignored local test output on each run. They are illustrative test-fixture data, not the owner's activity or store-ready marketing evidence.
 
 Run the typecheck, unit/UI tests, production build, browser tests, and dependency audit described in [README.md](../README.md#development). These results describe the source/build tested today, not future edits.

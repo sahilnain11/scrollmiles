@@ -186,13 +186,16 @@ test.describe.serial('real Chrome extension', () => {
     await expect(dashboard.locator('.metric-card').filter({ hasText: 'The raw distance' }).locator('strong')).toHaveText('2,800px');
     await expect(dashboard.getByRole('heading', { name: 'Your week in motion' })).toBeVisible();
     await checkAccessibility(dashboard);
+    await dashboard.getByRole('button', { name: 'Preview my Wrapped' }).click();
+    await expect(dashboard.getByRole('img', { name: /Wrapped PNG preview/ })).toBeVisible();
     const downloadPromise = dashboard.waitForEvent('download');
-    await dashboard.getByRole('button', { name: 'Download my Wrapped' }).click();
+    await dashboard.getByRole('button', { name: 'Download PNG' }).click();
     const download = await downloadPromise;
     expect(download.suggestedFilename()).toMatch(/^scrollmiles-.*\.png$/);
     const downloadPath = await download.path();
     expect(downloadPath).toBeTruthy();
     expect((await readFile(downloadPath!)).subarray(0, 8).toString('hex')).toBe('89504e470d0a1a0a');
+    await dashboard.getByRole('button', { name: 'Close Wrapped preview' }).click();
     await dashboard.screenshot({ path: 'test-results/dashboard-dark.png', fullPage: true });
     await dashboard.getByRole('button', { name: 'Switch to light theme' }).click();
     await expect(dashboard.locator('html')).toHaveAttribute('data-theme', 'light');

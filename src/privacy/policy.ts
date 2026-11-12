@@ -43,7 +43,8 @@ export const privacySections = [
   {
     title: 'Wrapped is a file you control',
     paragraphs: [
-      'Wrapped images are drawn locally and downloaded only when you choose. They contain the selected daily or seven-day totals, not browsing history or website names. Nothing is uploaded or posted automatically.',
+      'Wrapped images are drawn locally and previewed before you choose Download PNG. The preview captures the selected daily or seven-day combined totals and dates, not browsing history or website names. New scrolling does not change it unless you refresh the preview. Download saves the displayed PNG; opening the preview does not download, upload, or post anything.',
+      'A deletion or tracking-policy change invalidates an open preview. Temporary image URLs are released when the image is replaced or the preview closes. No preview image is added to the historical activity database.',
       'A downloaded PNG remains outside extension storage. Delete or share that file yourself; clearing history cannot remove existing exports, copies, or images you have shared.',
     ],
   },

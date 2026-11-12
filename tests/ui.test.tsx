@@ -173,7 +173,7 @@ describe('honest loading and recovery', () => {
     render(<App page="dashboard" />);
     expect((await screen.findByRole('alert')).textContent).toContain('statistics could not be loaded');
     expect(screen.queryByText('Scroll bursts')).toBeNull();
-    expect(screen.queryByRole('button', { name: 'Download my Wrapped' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Preview my Wrapped' })).toBeNull();
     expect(screen.getByRole('link', { name: 'Read the privacy notice' })).toBeTruthy();
     await userEvent.setup().click(screen.getByRole('button', { name: 'Retry loading' }));
     expect(await screen.findByText('Scroll bursts')).toBeTruthy();
@@ -206,7 +206,7 @@ describe('honest loading and recovery', () => {
   });
 
   it('preserves actual measurements after a failed action', async () => {
-    sendMock.mockResolvedValue({ ...snapshot, days: [{ date: localDate(), distancePx: 500, actions: 2, activeMs: 200 }] });
+    sendMock.mockResolvedValue({ ...snapshot, settings: { ...snapshot.settings, approvedSites: ['https://example.com'] }, days: [{ date: localDate(), distancePx: 500, actions: 2, activeMs: 200 }] });
     render(<App page="dashboard" />);
     await screen.findByText('Scroll bursts');
     sendMock.mockRejectedValueOnce(new Error('Pause could not be saved.'));

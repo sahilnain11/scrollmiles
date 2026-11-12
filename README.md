@@ -14,19 +14,33 @@ The production extension has already been built locally.
 4. Pin ScrollMiles from Chrome's Extensions menu and open it.
 5. Enter a website's exact hostname, such as **en.wikipedia.org**, and select **+**. Accept Chrome's website-access prompt.
 6. Open that website in a normal tab and scroll. Totals update within a few seconds. If an already-open page does not start collecting, reload it once.
-7. Select **Your full story** for the dashboard. Download your Wrapped as a PNG, or open **Privacy & settings** to manage access.
+7. Select **Your full story** for the dashboard. Open **Preview my Wrapped**, inspect the actual image, then choose **Download PNG**. Open **Privacy & settings** to manage access.
 
 Nothing is tracked until a website is enabled. HTTPS and HTTP are separate; so are subdomains. For example, enabling `https://example.com` does not enable `https://www.example.com`. Chrome host permissions cover all paths and ports for a hostname. Paste a URL if convenient; paths, credentials, query strings, and fragments are not saved (credential-bearing URLs are rejected).
 
 ### Popup — a quick glance
 
-The toolbar popup is a focused summary, not a squeezed dashboard. **Today / Last 7 days** selects the existing local aggregate and the period used by **Wrapped** export. The large distance is clearly a screen-equivalent estimate. **Active scrolling** and **Scroll bursts** are not browser-use time or session counts; zero timed seconds can accompany an isolated scroll, and sub-second durations show **<1s**. Expand **What do these numbers mean?** for the raw CSS-pixel total and measurement definitions.
+The toolbar popup is a focused summary, not a squeezed dashboard. **Today / Last 7 days** selects the existing local aggregate and the initial period used by **Wrapped** preview. The large distance is clearly a screen-equivalent estimate. **Active scrolling** and **Scroll bursts** are not browser-use time or session counts; zero timed seconds can accompany an isolated scroll, and sub-second durations show **<1s**. Expand **What do these numbers mean?** for the raw CSS-pixel total and measurement definitions.
 
 The status row separates **tracking enabled**, **tracking paused**, **no website access**, and **status unavailable**. It describes the global collection setting, not proof the current tab is being tracked. Selected-host coverage or all-site/exclusion counts stay visible. Pause/resume is one click and does not erase history. A failed refresh warns that the previous numbers may be stale and disables the popup's pause/export actions until a successful read.
 
-First use prioritizes the website access form instead of empty metric tiles; optional all-site access is reviewed in settings. Once access is configured, detailed permission management moves to **Privacy & settings**, always reachable from the header. **Website insights** links directly to the real dashboard section only when separately opted in; when off it links to settings without enabling anything. **Your full story** opens the full dashboard. All links open extension pages in a new tab; Wrapped downloads an entirely local, site-free PNG.
+First use prioritizes the website access form instead of empty metric tiles; optional all-site access is reviewed in settings. Once access is configured, detailed permission management moves to **Privacy & settings**, always reachable from the header. **Website insights** links directly to the real dashboard section only when separately opted in; when off it links to settings without enabling anything. **Your full story** opens the full dashboard. Navigation links open extension pages in a new tab; Wrapped first opens the actual local, site-free PNG preview, without starting a download.
 
 The first-use and populated baseline layouts are tested to fit a 390px-wide/600px-high surface, with no horizontal overflow at 320px. Expanded explanations, very large values, long warnings, and some empty states can require vertical scrolling. Real collection, storage, permissions, and consent rules are unchanged. Physical toolbar behavior and native permission prompts remain manual acceptance checks; browser tests render the actual production popup document in bounded tabs.
+
+### Dashboard — your scrolling story
+
+The overview uses the same warm dark/lime/light palette as the popup and insights. It separates the distance estimate, collection status/coverage, active scrolling, bursts, and raw CSS pixels. **Today / Last 7 days** changes the summary; **Your week in motion** always shows the last seven local calendar days. Hover, focus, or select a daily bar for its readout, or expand **View exact daily totals** for the table. Genuine zero days stay zero.
+
+The collection card offers global pause/resume when website access is configured. Its status describes the collection setting, not proof the current tab is tracked. First use keeps exact-host setup available; ongoing access/exclusion management lives in settings. Section links lead to Website insights and Wrapped without changing consent. Measurement explanations are available in a collapsed disclosure, not mixed into every chart.
+
+### Wrapped — preview, then download
+
+Both popup and dashboard open a modal containing the **actual 1200 × 1200 PNG**, not a separate HTML approximation. Choose Today or Last 7 days and inspect the date/range and combined distance, bursts, and active scrolling. Opening the preview does not save or post anything; **Download PNG** saves the exact rendered image you see.
+
+Totals are captured when the preview opens. New scrolling or the dashboard's live refresh does not silently change the card; **Refresh preview totals** deliberately takes a new snapshot. Deletion or a tracking-policy epoch change invalidates the open preview. A failed statistics refresh disables downloading until a successful read; a drawing failure offers **Retry preview**. Zero-data cards contain honest zeros. Escape or Close dismisses the modal and returns focus to its trigger, and Tab stays within its controls.
+
+Only anonymous combined totals and the selected dates reach the renderer—never site identifiers or URLs. The image is generated locally, temporary image URLs are released when replaced/closed, and nothing is uploaded. An already-downloaded PNG remains outside extension storage and is not removed by deleting history. A physical toolbar popup can close when Chrome dismisses it; reopen the preview or use the dashboard if needed.
 
 ### One permission for all supported websites
 
@@ -77,7 +91,7 @@ Use the real Chromium integration suite for permission, aggregation, pause, dele
 - Dark-first popup, full-page dashboard, light theme, and privacy settings.
 - Branded Chrome toolbar icons and an offline, bundled privacy notice.
 - Explicit loading failures, stale-data warnings, and retry controls instead of misleading zero totals.
-- Local 1200 × 1200 PNG Wrapped cards with no website identifiers.
+- Actual local 1200 × 1200 PNG Wrapped previews, explicit download of the displayed image, and no website identifiers.
 - Per-host opt-in, immediate global pause, permission removal, and delete-history controls.
 - Optional all-supported-websites opt-in with a separate confirmation, broad-permission revocation, and exact-host exclusions.
 - Separate opt-in website/hour scrolling aggregates, per-site active scrolling and burst starts, hourly breakdowns, seven-day trends, and detailed-history deletion.
@@ -85,6 +99,8 @@ Use the real Chromium integration suite for permission, aggregation, pause, dele
 - No account, backend, cloud synchronization, third-party analytics, or production network requests.
 
 Not implemented: website usage duration, session analytics, morning/night insights, achievements, notifications, mobile tracking, physical-activity integrations, or Web Store publishing. The first beta deliberately validates scrolling and sharing before expanding scope.
+
+The separate [browser-active time and sessions proposal](docs/BROWSER_TIME_DESIGN.md) defines a possible later slice, consent, session boundaries, uncertainty, and acceptance tests. It is **design only**: no timing collection, session statistics, new opt-in, or `idle` permission has been added. Those decisions need review before implementation; old scrolling history cannot supply them.
 
 ## Measurement definitions
 
@@ -130,7 +146,7 @@ Requires **Node.js 22.12+** and **npm 11.21.2+**. The verified package-manager r
 
 Before integration tests, run the production build and install Playwright's browser with `npx playwright install chromium` (already installed in the current environment). Tests use a temporary browser profile and a local-only HTTP fixture. Chromium's native permission bubble is not a page DOM element: the tests pre-approve the fixture host through **chrome://extensions**, then exercise the real UI and `chrome.permissions.request`. No extension API is mocked in browser tests. Separate component tests simulate denied, blocked, and throwing permission APIs; native permission-prompt acceptance/denial still needs a manual check.
 
-The browser suite also verifies a genuine service-worker stop/wake, packaged icon dimensions, offline privacy navigation, optional all-site mode/exclusions/revocation, exact-host boundaries, local infinite-feed/SPA fixtures, wheel and keyboard inputs, two actual browser windows, navigation, deletion cancellation, export persistence, real 200% browser zoom, and recovery from an incompatible database in a disposable profile. Fixtures map test domains to loopback, and off-fixture page/worker HTTP attempts are logged, blocked, and fail the suite. A real bug on ordinary non-localhost HTTP pages was fixed: collector IDs use the UUID library's cryptographic fallback where `crypto.randomUUID()` is unavailable.
+The browser suite also verifies a genuine service-worker stop/wake, packaged icon dimensions, offline privacy navigation, optional all-site mode/exclusions/revocation, exact-host boundaries, local infinite-feed/SPA fixtures, wheel and keyboard inputs, two actual browser windows, navigation, deletion cancellation, export persistence, real 200% browser zoom, and recovery from an incompatible database in a disposable profile. Wrapped checks compare the downloaded bytes with the displayed PNG, freeze the card during new real scrolling, refresh explicitly, and invalidate previews after cross-tab deletion. A test-only observer captures Blob bytes while delegating the original object-URL creation; it does not mock extension APIs, the renderer, or measured activity. Fixtures map test domains to loopback, and off-fixture page/worker HTTP attempts are logged, blocked, and fail the suite. A real bug on ordinary non-localhost HTTP pages was fixed: collector IDs use the UUID library's cryptographic fallback where `crypto.randomUUID()` is unavailable.
 
 Collector tests simulate midnight before flush, wall-clock rollback, bounded retries/recovery, idle behavior, and immediate epoch/exclusion changes. Calendar tests run the actual metrics module in isolated processes with New York DST and multiple timezones; they do not change the Mac's clock. These checks complement—not replace—the remaining manual checks in [the beta checklist](docs/BETA_CHECKLIST.md). See the [dated beta results](docs/BETA_RESULTS.md) for what was and was not verified. Screenshots remain in ignored local test output.
 
@@ -151,10 +167,13 @@ Development mode may need a supported local Chrome installation and WXT's develo
 | [src/components/SiteInsights.tsx](src/components/SiteInsights.tsx) | Explicit detailed-history consent, live site analysis, accessible charts, and deletion |
 | [src/components/App.tsx](src/components/App.tsx) | Shared popup/dashboard/settings UI |
 | [src/components/PopupOverview.tsx](src/components/PopupOverview.tsx) | Compact real-data popup, coverage/pause status, onboarding and navigation |
+| [src/components/DashboardOverview.tsx](src/components/DashboardOverview.tsx) | Dashboard hierarchy, collection coverage, seven-day chart and preview entry |
+| [src/components/WrappedPreview.tsx](src/components/WrappedPreview.tsx) | Actual-image modal, explicit refresh/download, focus and temporary-image lifecycle |
 | [src/components/PrivacyPage.tsx](src/components/PrivacyPage.tsx) | Offline privacy notice, independent of historical database/worker availability |
 | [src/privacy/policy.ts](src/privacy/policy.ts) | Single source of privacy notice text; publisher/contact review required before public release |
 | [assets/brand/icon.svg](assets/brand/icon.svg) | Original brand icon source, rasterized locally during build |
-| [src/wrapped/CardRenderer.ts](src/wrapped/CardRenderer.ts) | Local Canvas PNG generation |
+| [src/wrapped/model.ts](src/wrapped/model.ts) | Frozen anonymous period totals, dates and export filenames |
+| [src/wrapped/CardRenderer.ts](src/wrapped/CardRenderer.ts) | Local Canvas PNG generation and download of the rendered preview |
 | [tests](tests) | Unit, authorization, storage and real-browser checks |
 
 WXT + React + strict TypeScript + Tailwind CSS. `idb` is the small typed wrapper around IndexedDB; `uuid` creates random collector IDs on HTTP as well as HTTPS. Lucide supplies bundled SVG icons. The seven-bar chart is accessible HTML/CSS with a data table, so a charting library is unnecessary at this stage. Vitest and Playwright are development-only dependencies. No empty future modules, application server, or unnecessary infrastructure.

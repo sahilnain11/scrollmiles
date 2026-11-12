@@ -25,6 +25,8 @@ The current suites cover:
 - Simulated collector midnight/clock rollback, bounded retry recovery, no idle polling, and actual calendar functions in isolated New York DST/multiple-timezone processes.
 - Separate opt-in website insights: preserving v1→v2 migration with no backfill, sender-derived site/hour totals, continuous-burst boundary attribution, anonymous/detail/checkpoint atomicity, detailed opt-out erasure, per-site deletion and pending-delete recovery, and real two-site dashboard accessibility in both themes.
 - Compact popup: first-use and populated height budgets, 390/320px widths, correct period totals and site-free export, global pause/resume, denied/invalid website setup, selected/all-site coverage, separate insights consent, stale-read action gating, and real insights/settings deep links. Production popup documents are tested in bounded Chromium tabs; physical action-popup behavior stays manual.
+- Polished dashboard: real supported metrics, first-use setup, stale-status action gating, seven-day chart selection and exact-value table, shared period selection, and keyboard use at actual 200% zoom.
+- Wrapped preview: actual PNG before explicit download, byte-for-byte displayed/downloaded equality, frozen totals during live collection, period choice and explicit refresh, zero/error/retry states, stale-render/temporary-URL cleanup, modal keyboard focus/Escape, both-theme/narrow layout, and invalidation after cross-tab history deletion.
 - Offline privacy notice, keyboard skip-navigation, narrow-screen overflow, and automated WCAG 2 A/AA and WCAG 2.1 A/AA checks on the desktop dark/light dashboard, light popup, light settings, and dark privacy notice.
 
 Automated accessibility checks do **not** prove complete accessibility conformance. Manual keyboard, screen-reader, zoom, contrast, and real permission-dialog checks are still required.
@@ -46,11 +48,13 @@ Use the production build, not WXT development mode. Never enable a sensitive web
 | Pause | Pause, scroll, resume, scroll again | Paused movement never contributes; no distance jump on resume |
 | Remove website | Remove an enabled host; continue scrolling its already-open tab | Permission revoked; no future increments; previous anonymous totals remain |
 | Delete | Choose Delete history, cancel; then confirm | Cancel preserves data; confirm removes totals/checkpoints and pauses; old tabs cannot restore history |
-| Wrapped | Download a card; inspect it; clear history | Only selected totals/date branding in PNG; file remains until manually deleted |
+| Wrapped | Open from popup and dashboard; switch period; inspect actual preview; add activity elsewhere; refresh; download; clear history | No download on open; frozen totals until refresh; PNG matches the selected image/date; modal keyboard navigation usable; cross-tab deletion closes preview, but an existing downloaded file remains until manually deleted |
 | Accessibility | Keyboard-only navigation, VoiceOver, browser zoom 200% | Named controls, visible focus, selected period announced, readable data table and errors |
 | Database unavailable | Simulate storage failure in a disposable profile only | No fake zero stats; retry control; privacy notice remains readable |
 
 Native Chrome permission bubbles are **not** clicked by Playwright. Component denial tests exercise application behavior; the manual decline/accept checks above must still be done.
+
+The [browser-active time/session design](BROWSER_TIME_DESIGN.md) is a later proposal, not current automated coverage or implemented collection. No timing/session values or new permissions are part of this milestone. Approve its consent, eligibility, uncertainty and session rules separately before runtime work.
 
 ## Compatibility matrix — local fixtures covered; device/live-site checks remain
 
