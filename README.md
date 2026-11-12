@@ -184,7 +184,7 @@ WXT + React + strict TypeScript + Tailwind CSS. `idb` is the small typed wrapper
 - Exercise native permission acceptance and denial manually.
 - Icons and an in-app privacy notice are included. Before distribution, approve publisher/contact details, a public privacy-policy URL, store screenshots, and accurate Chrome Web Store data disclosures.
 - Review extension accessibility and performance on low-powered devices.
-- Decide distribution/license terms. This repository is private by default in intent; no public-use license has been assigned.
+- Decide distribution/license terms. This source repository is public, but no open-source license has been selected. Public source visibility is not a Chrome Web Store release or approval to publish the extension.
 - If using employer-provided Copilot Business, confirm organizational policy permits personal-project development.
 
 See [the beta checklist](docs/BETA_CHECKLIST.md) for automated coverage, native-permission checks, the compatibility matrix, and public-distribution blockers. This work does not publish or submit the extension.
