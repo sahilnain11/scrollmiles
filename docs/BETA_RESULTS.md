@@ -5,9 +5,9 @@
 **Local automated checks passed. Not a public-release sign-off.**
 
 - Strict TypeScript: passed.
-- Vitest: **153 tests in 17 files** cover measurement, storage, policy/authorization, UI, settings migration, hourly collector/calendar boundaries, detailed consent/deletion, worker compatibility, site/chart interactions, popup/dashboard states, anonymous Wrapped models, rendering/preview lifecycle, deterministic Smart Insights and comparable-date/heatmap rules. See the execution records below.
+- Vitest: **173 tests in 19 files** cover measurement, storage, policy/authorization, UI, settings migration, hourly collector/calendar boundaries, detailed consent/deletion, worker compatibility, site/chart interactions, popup/dashboard states, anonymous Wrapped models, rendering/preview lifecycle, deterministic Smart Insights, comparable-date/heatmap rules, retained daily records and monthly calendars. See the execution records below.
 - Production build: passed; assets generated locally.
-- Playwright: **30 tests** cover the original production suite plus opted-in site insights, the compact production popup document, the polished dashboard, exact PNG previews, and the Smart Insights consent/comparison/deletion flow. See the latest execution record below.
+- Playwright: **32 tests** cover the original production suite plus opted-in site insights, the compact production popup document, the polished dashboard, exact PNG previews, Smart Insights consent/comparison/deletion, and retained-history/monthly views. See the latest execution record below.
 - Full npm dependency audit: **0 known vulnerabilities** at execution time. This is not a security certification.
 - Editor diagnostics: no errors.
 
@@ -175,6 +175,20 @@ Added **21 unit/component/storage/calendar/worker regressions** and **2 producti
 
 Latest combined local result: **typecheck passed; 153 Vitest tests passed in 17 files; production build passed; all 30 Chromium tests passed; full npm 11.21.2 dependency audit found 0 known vulnerabilities; editor diagnostics showed no errors**. Dark/light and narrow Smart Insights screenshots were inspected using local-fixture activity; raw evidence stays ignored. Production manifest reviewed: only `storage`/`scripting`, optional HTTP/HTTPS hosts, no mandatory hosts/static scripts, no incognito, `connect-src 'none'`. Manifest hash remains the value recorded above. The [detailed measurement notes](SMART_INSIGHTS.md) document conservative comparison availability and unchanged privacy boundaries. Manual device, native prompt, live-site and VoiceOver checks remain outstanding.
 
+## Retained personal daily records and monthly summaries — November 12
+
+After the owner tested Smart Insights and requested continued work, this follow-up implements the remaining supported Phase 1 record/month summary slice. It does not infer a longest individual burst, introduce achievement/personality engines, or implement browser-active/session timing.
+
+- An explicit dashboard `includeHistory: true` flag requests up to 90 existing anonymous daily rows plus inclusive worker-anchored dates. Popup/settings do not request the larger response. Non-boolean flags are rejected; authorization remains UI-only. Seven-day and 14-complete-day response fields are unchanged. The new view/capability is additive; older workers give reload guidance instead of a fake zero history.
+- Retained records rank positive daily distance, daily burst count and daily active-scrolling sum separately, excluding partial today. All ties are exposed in chronological order. Zero/empty/today-only input yields no record. These are retained-window maxima, not lifetime records, complete coverage, goals or achievements. Records/subtotals recompute on expiry, deletion or accepted late checkpoints; no permanent record ledger is added.
+- Calendar-month selection covers every month intersecting retention (up to four), independent of overview period. Monthly recorded subtotals include labeled partial today, exclude future dates, and clip the oldest month at retention. Saved zero, missing/unknown, future and outside-retention dates have separate text states. Saved-date counts are not coverage percentages; no missing-data averages, streaks or month-to-month changes are inferred.
+- A Sunday-first calendar offers one tabbable date, arrows/Home/End/Ctrl+Home/End, current-date labeling, a selected readout and exact monthly table. The exact table uses em dashes for unknown values. Existing automatic accessibility checks caught an invalid metric definition-list grouping and visible-date/accessible-name mismatches; markup and names were corrected, not audits weakened. Both-theme Axe A/AA checks now pass.
+- Actual anonymous scrolling appears while Website insights is off. Per-site detail deletion and detailed opt-out preserve monthly totals; global Delete history removes them. New read models explicitly project numeric/date fields without site identities. Collection, checkpoints, permission modes, DBv2, retention and site-free daily/seven-day Wrapped are unchanged.
+
+Added **20 unit/component/storage/worker/calendar checks** and **2 production browser cases**. The second browser case explicitly inserts synthetic past daily aggregates into a disposable profile to verify DB/worker/UI reads, retention filtering, ties/month selection and exact states; it does not claim 90 days of measured collection. The other browser case uses real current-day scrolling and existing permission/consent/deletion UI. The calendar module runs in isolated New York DST/Kolkata/Kiritimati processes; the fixture uses an instant on the same local date in those zones rather than assuming noon UTC is still the same date at UTC+14. No owner's data or clock is touched.
+
+Latest combined local result: **typecheck passed; 173 Vitest tests passed in 19 files; production build passed; all 32 Chromium tests passed; full npm 11.21.2 dependency audit found 0 known vulnerabilities**. Editor diagnostics reported no errors. Dark/light history sections and a narrow calendar were inspected; screenshot data is synthetic/local-fixture and raw files remain ignored. Production manifest hash remains unchanged; no new permissions/mandatory hosts/static scripts, no incognito, `connect-src 'none'`. See [history measurement notes](HISTORY.md) for precise limits. Manual native/device, VoiceOver and live-site checks remain outstanding.
+
 ## Reproducible evidence
 
 - [Original production-extension browser suite](../tests/e2e/extension.spec.ts).
@@ -183,6 +197,7 @@ Latest combined local result: **typecheck passed; 153 Vitest tests passed in 17 
 - [Popup component checks](../tests/popup.test.tsx) and [production popup browser checks](../tests/e2e/popup.spec.ts).
 - [Dashboard component checks](../tests/dashboard.test.tsx), [Wrapped model/lifecycle checks](../tests/wrapped.test.tsx), [PNG renderer checks](../tests/card-renderer.test.ts), and [actual preview browser checks](../tests/e2e/wrapped.spec.ts).
 - [Smart Insights models](../tests/insights.test.ts), [Smart Insights component checks](../tests/smart-insights-ui.test.tsx) and [production consent/heatmap/comparison cases](../tests/e2e/smart-insights.spec.ts).
+- [Retained-history models](../tests/history.test.ts), [record/month component checks](../tests/history-ui.test.tsx) and [production record/calendar cases](../tests/e2e/history.spec.ts).
 - Screenshots and PNGs are generated in ignored local test output on each run. They are illustrative test-fixture data, not the owner's activity or store-ready marketing evidence.
 
 Run the typecheck, unit/UI tests, production build, browser tests, and dependency audit described in [README.md](../README.md#development). These results describe the source/build tested today, not future edits.

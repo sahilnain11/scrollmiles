@@ -13,6 +13,10 @@ const insightSource = readFileSync(new URL('../src/analytics/insights.ts', impor
 const insightCompiled = transpileModule(insightSource, { compilerOptions: { module: ModuleKind.ESNext, target: ScriptTarget.ES2022 } }).outputText
   .replace("'./metrics'", JSON.stringify(moduleUrl));
 const insightUrl = `data:text/javascript;base64,${Buffer.from(insightCompiled).toString('base64')}`;
+const historySource = readFileSync(new URL('../src/analytics/history.ts', import.meta.url), 'utf8');
+const historyCompiled = transpileModule(historySource, { compilerOptions: { module: ModuleKind.ESNext, target: ScriptTarget.ES2022 } }).outputText
+  .replace("'./metrics'", JSON.stringify(moduleUrl));
+const historyUrl = `data:text/javascript;base64,${Buffer.from(historyCompiled).toString('base64')}`;
 
 function dates(zone: string, instants: string[]) {
   const script = `const {localDate,daysAgo,lastSevenDays}=await import(${JSON.stringify(moduleUrl)});
@@ -26,6 +30,18 @@ function dates(zone: string, instants: string[]) {
 }
 
 describe('isolated timezone and DST calendar checks', () => {
+  it('builds calendar months and retained records across DST with one anchored local-date window', () => {
+    for (const zone of ['America/New_York', 'Asia/Kolkata', 'Pacific/Kiritimati']) {
+      const script = `const {monthlySummary,retainedRecords}=await import(${JSON.stringify(historyUrl)});
+        const {daysAgo,localDate}=await import(${JSON.stringify(moduleUrl)});
+        const result=['2026-03-31T09:00:00Z','2026-11-30T09:00:00Z'].map(value=>{
+          const now=new Date(value);const history={startDate:daysAgo(89,now),endDate:localDate(now),days:Array.from({length:90},(_,i)=>({date:daysAgo(i,now),distancePx:1,actions:1,activeMs:0}))};
+          const month=monthlySummary(history,history.endDate.slice(0,7));return{days:month.days.length,unique:new Set(month.days.map(day=>day.date)).size,saved:month.savedDays,past:retainedRecords(history).pastSavedDays};
+        });console.log(JSON.stringify(result));`;
+      const results = JSON.parse(execFileSync(process.execPath, ['--input-type=module', '-e', script], { env: { ...process.env, TZ: zone }, encoding: 'utf8' })) as { days: number; unique: number; saved: number; past: number }[];
+      expect(results).toEqual([{ days: 31, unique: 31, saved: 31, past: 89 }, { days: 30, unique: 30, saved: 30, past: 89 }]);
+    }
+  });
   it('keeps 14 distinct completed comparison dates across DST and timezones', () => {
     for (const zone of ['America/New_York', 'Asia/Kolkata', 'Pacific/Kiritimati']) {
       const script = `const {compareCompleteWeeks}=await import(${JSON.stringify(insightUrl)});

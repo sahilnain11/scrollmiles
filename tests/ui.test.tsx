@@ -168,6 +168,15 @@ describe('permission UI', () => {
 });
 
 describe('honest loading and recovery', () => {
+  it('requests retained history only on the dashboard, not in compact popup or settings reads', async () => {
+    const view = render(<App page="popup" />);
+    await screen.findByRole('heading', { name: 'Choose a website to begin' });
+    expect(sendMock).toHaveBeenLastCalledWith({ type: 'GET_SNAPSHOT' });
+    view.rerender(<App page="options" />);
+    await waitFor(() => expect(sendMock).toHaveBeenLastCalledWith({ type: 'GET_SNAPSHOT' }));
+    view.rerender(<App page="dashboard" />);
+    await waitFor(() => expect(sendMock).toHaveBeenLastCalledWith({ type: 'GET_SNAPSHOT', includeHistory: true }));
+  });
   it('does not present a storage failure as zero activity and recovers on retry', async () => {
     sendMock.mockRejectedValueOnce(new Error('Local database could not be opened.'));
     render(<App page="dashboard" />);

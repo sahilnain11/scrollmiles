@@ -1,5 +1,5 @@
 import { defineBackground } from 'wxt/utils/define-background';
-import { applyCheckpoint, clearHistory, clearSiteHistory, getWeek, getSiteWeek, getComparisonDays, openStatsDatabase, pruneHistory, type StatsConnection } from '../src/storage/database';
+import { applyCheckpoint, clearHistory, clearSiteHistory, getWeek, getSiteWeek, getComparisonDays, getRetainedHistory, openStatsDatabase, pruneHistory, type StatsConnection } from '../src/storage/database';
 import { readSettings, writeSettings } from '../src/storage/settings';
 import { ALL_SITE_ORIGINS, canTrackUrl, normalizeSite, sitePattern } from '../src/utils/sites';
 import { isCheckpoint } from '../src/utils/validation';
@@ -104,6 +104,7 @@ export default defineBackground(() => {
     if (!isUi(sender)) throw new Error('This action is only available in ScrollMiles.');
     switch (request.type) {
       case 'GET_SNAPSHOT': {
+        if (request.includeHistory !== undefined && typeof request.includeHistory !== 'boolean') throw new Error('Invalid history request.');
         const db = await getDatabase();
         const now = new Date();
         await pruneHistory(db, now);
@@ -112,8 +113,9 @@ export default defineBackground(() => {
         return {
           settings, days: await getWeek(db, now),
           comparisonDays: await getComparisonDays(db, now),
+          ...(request.includeHistory === true ? { history: await getRetainedHistory(db, now) } : {}),
           siteHours: settings.siteInsightsEnabled ? await getSiteWeek(db, now) : [],
-          capabilities: { allSiteAccess: true, siteInsights: true, smartInsights: true },
+          capabilities: { allSiteAccess: true, siteInsights: true, smartInsights: true, retainedHistory: true },
         };
       }
       case 'SET_SITE_INSIGHTS': {

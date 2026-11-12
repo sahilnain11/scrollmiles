@@ -90,7 +90,17 @@ Open **Smart insights** from the dashboard section links. Deterministic calculat
 
 Enabling Website insights remains a separate settings confirmation; opening Smart insights never enables it. There is no hourly backfill. Opt-out/per-site deletion removes the corresponding heatmap detail while keeping anonymous totals; global deletion clears both. Failed loads suppress fresh observations, and an older worker without comparison history gives reload guidance rather than fake zeros.
 
-The [measurement and acceptance notes](docs/SMART_INSIGHTS.md) explain the deliberately conservative baseline rule. Longest individual burst, monthly reporting, achievements, personality types and browser-active/session timing are **not** added by this milestone; daily/hourly aggregates cannot recover an individual burst maximum. No retention period or Wrapped contents are changed.
+The [measurement and acceptance notes](docs/SMART_INSIGHTS.md) explain the deliberately conservative baseline rule. Longest individual burst, achievements, personality types and browser-active/session timing are **not** added by this milestone; daily/hourly aggregates cannot recover an individual burst maximum. No retention period or Wrapped contents are changed.
+
+### History — daily records and monthly summaries
+
+Open **History** in the dashboard section links. This reads up to **90 existing anonymous daily aggregates**, without new collection, permissions or a database migration. The worker anchors the inclusive retention dates; popup/settings do not request the larger history response. An older worker shows reload guidance, not a made-up empty history.
+
+**Personal records within retained history** show the largest positive daily distance, daily burst count and daily active-scrolling total among past saved dates. Today is excluded while still in progress. All tied dates are available, and no positive data means no record. These are observed maxima, not targets, achievements or all-time records. They can change as late checkpoints arrive or older dates expire; an active-scrolling daily total is not an individual burst length.
+
+**Monthly summary** offers each calendar month intersecting retention, independently of Today/Last 7 days. Distance, bursts and active scrolling are recorded subtotals—not claims of complete monthly activity. The current month includes explicitly labeled partial today; future dates are excluded. The oldest month can be cut off by retention, with its earlier dates labeled outside the retained window. Dates with no saved record are unknown, not verified zeros. Saved zeros, missing records, expired dates and future dates have separate text states in the interactive calendar/readout and exact table. Saved-day counts are not collection-coverage percentages.
+
+Use the month selector, click a date or explore with arrows/Home/End/Ctrl+Home/End. The calendar starts Sunday and stays usable at narrow widths. No averages, month-over-month changes, streaks or pressure to scroll are inferred. Summary totals can include today, while daily record rankings do not. Global Delete history clears the source data; website-detail opt-out/deletion preserves these anonymous totals. Retention stays at 90 days—there is no hidden permanent record store. See [history measurement notes](docs/HISTORY.md).
 
 ### Wrapped — preview, then download
 
@@ -154,6 +164,7 @@ Use the real Chromium integration suite for permission, aggregation, pause, dele
 - Scroll bursts and estimated active scrolling duration.
 - Today's totals and a rolling seven-local-calendar-day summary.
 - Local Smart Insights: honest daily/seven-day observations, completed-period comparisons when enough saved history exists, and a consent-gated day/hour heatmap with exact values.
+- Personal daily records within retained history and calendar-month summaries with honest missing/expired/future states and exact daily values.
 - Real zero-state UI: no fabricated data or invented improvement percentages.
 - Dark-first popup, full-page dashboard, light theme, and privacy settings.
 - Branded Chrome toolbar icons and an offline, bundled privacy notice.
@@ -231,12 +242,14 @@ Development mode may need a supported local Chrome installation and WXT's develo
 | [src/analytics/metrics.ts](src/analytics/metrics.ts) | Local calendar grouping and display formatting |
 | [src/analytics/sites.ts](src/analytics/sites.ts) | Pure per-site ranking, hour summaries, and seven-day reporting |
 | [src/analytics/insights.ts](src/analytics/insights.ts) | Deterministic summaries, completed-period comparisons and site-free hourly view models |
+| [src/analytics/history.ts](src/analytics/history.ts) | Retained-window daily records and calendar-month models without inferred coverage |
 | [src/tracking/HourlyScrollTracker.ts](src/tracking/HourlyScrollTracker.ts) | Continuous-burst attribution across hour/day boundaries |
 | [src/components/SiteInsights.tsx](src/components/SiteInsights.tsx) | Explicit detailed-history consent, live site analysis, accessible charts, and deletion |
 | [src/components/App.tsx](src/components/App.tsx) | Shared popup/dashboard/settings UI |
 | [src/components/PopupOverview.tsx](src/components/PopupOverview.tsx) | Compact real-data popup, coverage/pause status, onboarding and navigation |
 | [src/components/DashboardOverview.tsx](src/components/DashboardOverview.tsx) | Dashboard hierarchy, collection coverage, seven-day chart and preview entry |
 | [src/components/SmartInsights.tsx](src/components/SmartInsights.tsx) | Honest insight cards, recorded-history comparisons and accessible opt-in heatmap |
+| [src/components/HistoryOverview.tsx](src/components/HistoryOverview.tsx) | Retained-history records, monthly summary/calendar and exact-value table |
 | [src/components/WrappedPreview.tsx](src/components/WrappedPreview.tsx) | Actual-image modal, explicit refresh/download, focus and temporary-image lifecycle |
 | [src/components/PrivacyPage.tsx](src/components/PrivacyPage.tsx) | Offline privacy notice, independent of historical database/worker availability |
 | [src/privacy/policy.ts](src/privacy/policy.ts) | Single source of privacy notice text; publisher/contact review required before public release |

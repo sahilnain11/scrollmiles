@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { daysAgo, localDate } from '../src/analytics/metrics';
-import { applyCheckpoint, clearHistory, getComparisonDays, openStatsDatabase, pruneHistory, type StatsConnection } from '../src/storage/database';
+import { applyCheckpoint, clearHistory, getComparisonDays, getRetainedHistory, openStatsDatabase, pruneHistory, type StatsConnection } from '../src/storage/database';
 import type { Checkpoint } from '../src/types';
 
 let db: StatsConnection;
@@ -14,6 +14,24 @@ beforeEach(async () => { db = await openStatsDatabase(`test-${crypto.randomUUID(
 afterEach(() => db.close());
 
 describe('atomic checkpoint storage', () => {
+  it('reads at most the existing 90-day anonymous window with date bounds and no inferred rows', async () => {
+    const now = new Date(2026, 10, 12, 12);
+    for (let index = -1; index <= 91; index++) {
+      const fixture = { date: daysAgo(index, now), distancePx: 100, actions: 1, activeMs: 0, site: 'https://private.example' };
+      await db.put('days', fixture);
+    }
+    const result = await getRetainedHistory(db, now);
+    expect(result.startDate).toBe(daysAgo(89, now));
+    expect(result.endDate).toBe(localDate(now));
+    expect(result.days).toHaveLength(90);
+    expect(result.days[0]?.date).toBe(daysAgo(89, now));
+    expect(result.days.at(-1)?.date).toBe(localDate(now));
+    expect(JSON.stringify(result)).not.toContain('private');
+    expect(db.version).toBe(2);
+    expect(await db.count('days')).toBe(93);
+    await clearHistory(db);
+    expect((await getRetainedHistory(db, now)).days).toEqual([]);
+  });
   it('reads only 14 complete anonymous days without changing retention or writing missing zeros', async () => {
     const now = new Date(2026, 10, 12, 12);
     for (let index = -1; index <= 16; index++) await db.put('days', { date: daysAgo(index, now), distancePx: 100, actions: 1, activeMs: 0 });

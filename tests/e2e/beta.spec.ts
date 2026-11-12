@@ -237,7 +237,7 @@ test('200% browser zoom preserves CSS pixels and usable keyboard navigation', as
   await expect(dashboard.getByRole('button', { name: 'Last 7 days', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await dashboard.getByText('View exact daily totals', { exact: true }).focus();
   await dashboard.keyboard.press('Enter');
-  await expect(dashboard.getByRole('table')).toBeVisible();
+  await expect(dashboard.getByRole('table', { name: 'Seven-day scrolling statistics' })).toBeVisible();
   const audit = await new AxeBuilder({ page: dashboard }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
   expect(audit.violations.map(({ id }) => id)).toEqual([]);
   expect(await dashboard.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);

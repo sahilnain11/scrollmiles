@@ -87,6 +87,32 @@ afterEach(() => {
 });
 
 describe('background authorization and lifecycle', () => {
+  it('provides retained anonymous history only when requested by authorized UI and preserves deletion boundaries', async () => {
+    for (let index = 0; index <= 91; index++) await state.db!.put('days', { date: daysAgo(index), distancePx: 100, actions: 1, activeMs: 0 });
+    const ordinary = await request<Snapshot>({ type: 'GET_SNAPSHOT' });
+    expect(ordinary.ok && ordinary.data.history).toBeUndefined();
+    const result = await request<Snapshot>({ type: 'GET_SNAPSHOT', includeHistory: true });
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.data.capabilities?.retainedHistory).toBe(true);
+    expect(result.data.history?.days).toHaveLength(90);
+    expect(result.data.history?.startDate).toBe(daysAgo(89));
+    expect(result.data.history?.endDate).toBe(localDate());
+    expect(result.data.days).toHaveLength(7);
+    expect(result.data.comparisonDays).toHaveLength(14);
+    expect(result.data.siteHours).toEqual([]);
+    expect(JSON.stringify(result.data.history)).not.toContain('example.com');
+    expect((await request({ type: 'GET_SNAPSHOT', includeHistory: true }, collector)).ok).toBe(false);
+    expect((await request({ type: 'GET_SNAPSHOT', includeHistory: 'all' })).ok).toBe(false);
+    await request({ type: 'SET_SITE_INSIGHTS', enabled: true });
+    await request({ type: 'DELETE_SITE_INSIGHTS', site: 'https://example.com' });
+    await request({ type: 'SET_SITE_INSIGHTS', enabled: false });
+    const preserved = await request<Snapshot>({ type: 'GET_SNAPSHOT', includeHistory: true });
+    expect(preserved.ok && preserved.data.history?.days).toHaveLength(90);
+    await request({ type: 'CLEAR_DATA' });
+    const cleared = await request<Snapshot>({ type: 'GET_SNAPSHOT', includeHistory: true });
+    expect(cleared.ok && cleared.data.history?.days).toEqual([]);
+  });
   it('returns bounded anonymous comparison history without expanding the seven-day or opted-out detail view', async () => {
     for (let index = 0; index <= 16; index++) await state.db!.put('days', { date: daysAgo(index), distancePx: 100, actions: 1, activeMs: 0 });
     const result = await request<Snapshot>({ type: 'GET_SNAPSHOT' });

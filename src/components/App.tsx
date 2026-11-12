@@ -6,6 +6,7 @@ import { SiteInsights, SiteInsightsControl } from './SiteInsights';
 import { PopupOverview } from './PopupOverview';
 import { DashboardOverview } from './DashboardOverview';
 import { SmartInsights } from './SmartInsights';
+import { HistoryOverview } from './HistoryOverview';
 import { WrappedPreview } from './WrappedPreview';
 import { emptyDay, lastSevenDays, localDate, sumDays } from '../analytics/metrics';
 import { send } from '../utils/client';
@@ -37,13 +38,13 @@ export function App({ page }: { page: Page }) {
 
   const refresh = useCallback(async () => {
     if (typeof chrome === 'undefined' || !chrome.runtime?.id) throw new Error('Open this page from the installed ScrollMiles extension to start tracking.');
-    const data = await send<Snapshot>({ type: 'GET_SNAPSHOT' });
+    const data = await send<Snapshot>({ type: 'GET_SNAPSHOT', ...(page === 'dashboard' ? { includeHistory: true } : {}) });
     setSnapshot(data);
     setHasSnapshot(true);
     setLoadError('');
     document.documentElement.dataset.theme = data.settings.theme;
     return data;
-  }, []);
+  }, [page]);
 
   useEffect(() => {
     setPreview((current) => current && current.snapshot.epoch !== settings.epoch ? null : current);
@@ -139,6 +140,7 @@ export function App({ page }: { page: Page }) {
         <section className="panel danger-panel"><div><h2>A clean slate</h2><p>Delete all recorded totals and pause tracking. Website choices and theme stay saved. There is no undo.</p></div>{confirmDelete ? <div className="delete-confirm" role="group" aria-label="Confirm deletion"><button className="button ghost" disabled={busy} onClick={() => setConfirmDelete(false)}>Cancel</button><button className="button danger" disabled={busy} onClick={() => { void act(async () => { await send({ type: 'CLEAR_DATA' }); setConfirmDelete(false); }, 'All history deleted. Tracking is paused.'); }}>Delete & pause</button></div> : <button className="button danger" disabled={busy || loading} onClick={() => setConfirmDelete(true)}><Trash2 size={16} />Delete history</button>}</section>
       </> : <DashboardOverview snapshot={snapshot} totals={totals} week={week} period={period} onPeriodChange={setPeriod} disabled={busy || loading} statusUnverified={!!loadError} siteForm={siteForm} run={act} onPreview={share}>
         <SmartInsights key={settings.epoch} snapshot={snapshot} period={period} stale={!!loadError} />
+        <HistoryOverview key={`history:${settings.epoch}`} history={snapshot.history} stale={!!loadError} />
         <SiteInsights snapshot={snapshot} disabled={busy || loading} run={act} period={period} onPeriodChange={setPeriod} />
       </DashboardOverview>}
     </main>

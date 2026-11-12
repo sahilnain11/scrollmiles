@@ -1,6 +1,6 @@
 import { openDB, type DBSchema } from 'idb';
 import { daysAgo, emptyDay, localDate, RETENTION_DAYS } from '../analytics/metrics';
-import type { Checkpoint, DayStats, SiteHourStats } from '../types';
+import type { Checkpoint, DayStats, RetainedHistory, SiteHourStats } from '../types';
 
 export const STATS_DB_VERSION = 2;
 
@@ -101,6 +101,13 @@ export async function getWeek(db: StatsConnection, now = new Date()): Promise<Da
 export async function getComparisonDays(db: StatsConnection, now = new Date()): Promise<DayStats[]> {
   const rows = await db.getAll('days', IDBKeyRange.bound(daysAgo(14, now), daysAgo(1, now)));
   return rows.map(({ date, distancePx, actions, activeMs }) => ({ date, distancePx, actions, activeMs }));
+}
+
+export async function getRetainedHistory(db: StatsConnection, now = new Date()): Promise<RetainedHistory> {
+  const startDate = daysAgo(RETENTION_DAYS - 1, now);
+  const endDate = localDate(now);
+  const rows = await db.getAll('days', IDBKeyRange.bound(startDate, endDate));
+  return { startDate, endDate, days: rows.map(({ date, distancePx, actions, activeMs }) => ({ date, distancePx, actions, activeMs })) };
 }
 
 export async function getSiteWeek(db: StatsConnection, now = new Date()): Promise<SiteHourStats[]> {

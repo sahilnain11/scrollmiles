@@ -34,18 +34,27 @@ export interface SiteHourStats extends DayStats {
   hour: number;
 }
 
+/** Read-only view of existing anonymous daily aggregates, not new history. */
+export interface RetainedHistory {
+  startDate: string;
+  endDate: string;
+  days: DayStats[];
+}
+
 export interface Snapshot {
   settings: Settings;
   days: DayStats[];
   /** Existing anonymous totals for the previous 14 complete local days. */
   comparisonDays?: DayStats[];
+  /** Requested by the dashboard only; dates are anchored by the worker. */
+  history?: RetainedHistory;
   siteHours?: SiteHourStats[];
   /** Absent in an older worker: the UI must not request unsupported access. */
-  capabilities?: { allSiteAccess: boolean; siteInsights?: boolean; smartInsights?: boolean };
+  capabilities?: { allSiteAccess: boolean; siteInsights?: boolean; smartInsights?: boolean; retainedHistory?: boolean };
 }
 
 export type Request =
-  | { type: 'GET_SNAPSHOT' }
+  | { type: 'GET_SNAPSHOT'; includeHistory?: boolean }
   | { type: 'GET_SETTINGS' }
   | { type: 'CHECKPOINT'; checkpoint: Checkpoint }
   | { type: 'SET_TRACKING'; enabled: boolean }

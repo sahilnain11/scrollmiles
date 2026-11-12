@@ -5,6 +5,7 @@
 @import "./components/dashboard.css";
 @import "./components/wrapped.css";
 @import "./components/smart-insights.css";
+@import "./components/history.css";
 
 /* Keep the popup's theme control centered despite the narrow-screen header. */
 .app.popup .header-actions{align-self:center}
