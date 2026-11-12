@@ -99,7 +99,7 @@ The owner explicitly approved a separate, opt-in expansion of local storage: exa
 - Added unit/storage migration/concurrency/retention/hour-boundary/consent/replay tests, plus real Chromium tests for two-site consent/no-backfill, exclusions, opt-out erasure, per-site deletion/cancellation, global deletion, restart persistence, both-theme accessibility, and narrow-screen layout.
 - A theme-transition contrast issue on the new ghost delete button was caught and fixed by removing its background animation. Dark/light accessibility checks now pass.
 
-GitHub source backups and CI must not include browser profiles, exports, test screenshots, installed dependencies, built extension output, or credentials. The original owner-supplied product context is retained. A private repository is not a public release or license selection.
+GitHub source backups and CI must not include browser profiles, activity exports, raw test output, installed dependencies, built extension output, or credentials. The owner's later README-visuals request permits only [reviewed local-fixture documentation screenshots](images/README.md), clearly labeled as illustrative test activity. The original owner-supplied product context is retained. Repository visibility is not a Chrome Web Store release or license selection.
 
 Latest local execution for this follow-up: **typecheck passed, 100 Vitest tests passed, production build passed, 23 Chromium tests passed, full dependency audit reported 0 known vulnerabilities**. Editor diagnostics reported no errors. Both-theme and narrow site-insights views were inspected with local-fixture activity; the narrow evidence uses a viewport capture to avoid full-page screenshot stitching artifacts.
 

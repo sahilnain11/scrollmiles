@@ -4,6 +4,48 @@
 
 A playful, privacy-first Chrome extension that turns everyday scrolling into a small personal journey. This is the first working beta, not the full product described in [the original context](ScrollMiles_Project_Context.md).
 
+<p>
+	<a href="#a-look-inside">Screenshots</a> ·
+	<a href="#try-it-in-chrome">Try the beta</a> ·
+	<a href="#optional-website-insights">Website insights</a> ·
+	<a href="#development">Development</a>
+</p>
+
+## A look inside
+
+> **Illustrative test activity—not personal browsing data.** These screenshots show the production extension using scripted scrolling on local test websites in disposable profiles. Each view is a separate test, so totals can differ. No sample activity is included in the shipped extension.
+
+### Your scrolling story, at a glance
+
+<picture>
+	<source media="(prefers-color-scheme: dark)" srcset="docs/images/dashboard-dark.webp">
+	<source media="(prefers-color-scheme: light)" srcset="docs/images/dashboard-light.webp">
+	<img src="docs/images/dashboard-dark.webp" alt="ScrollMiles dashboard overview crop with estimated distance, tracking coverage and pause, active scrolling, burst and raw pixel totals, a seven-day chart, and Wrapped preview entry. Illustrative local test activity." width="1152" height="1184">
+</picture>
+
+*Dashboard overview crop. The image follows your preferred light/dark theme; all distances are screen-equivalent estimates.*
+
+<table>
+	<thead>
+		<tr>
+			<th width="34%">A quick glance</th>
+			<th width="66%">Preview before you share</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td valign="top"><img src="docs/images/popup-dark.webp" alt="Dark ScrollMiles popup showing a real test total, active scrolling, bursts, pause, separate insights consent, and dashboard/Wrapped controls." width="390" height="600"></td>
+			<td valign="top"><img src="docs/images/wrapped-preview-dark.webp" alt="Dark Wrapped modal showing the actual site-free PNG, selected seven-day dates and totals, explicit refresh, and Download PNG. Illustrative local test activity." width="850" height="788"></td>
+		</tr>
+		<tr>
+			<td>Compact production popup document, captured in a bounded test tab—not Chrome’s physical toolbar window.</td>
+			<td>The actual locally generated PNG. Totals stay frozen until you refresh; download saves the displayed image.</td>
+		</tr>
+	</tbody>
+</table>
+
+See the [opt-in website breakdown](#optional-website-insights) below. [Screenshot sources and refresh instructions](docs/images/README.md) explain the fixture data and image preparation.
+
 ## Try it in Chrome
 
 The production extension has already been built locally.
@@ -63,6 +105,14 @@ The settings page checks the worker's advertised all-site support before offerin
 ### Optional website insights
 
 Open **Privacy & settings → Website insights → Set up website insights**. The confirmation explains that exact scheme/hostnames will be stored with local hourly scrolling totals for up to 90 days. Choose **Enable website insights** only if you want that extra detail. It is **off by default**, including on existing installs, and requires no new Chrome permission.
+
+<picture>
+	<source media="(prefers-color-scheme: dark)" srcset="docs/images/site-insights-dark.webp">
+	<source media="(prefers-color-scheme: light)" srcset="docs/images/site-insights-light.webp">
+	<img src="docs/images/site-insights-dark.webp" alt="Opted-in Website insights with two synthetic scrollmiles.test hosts, exact-site distance share, active scrolling, burst starts, and an hourly chart. Illustrative local test activity, not website usage time." width="1116" height="1051" loading="lazy">
+</picture>
+
+*Illustrative local-fixture activity after explicit insights opt-in. The hostnames are test sites; the share is of recorded-site scrolling distance, not browser time.*
 
 The dashboard adds a **Website insights** panel headed **A little more perspective**. Search exact recorded hosts or sort by distance, scrolling time, or burst starts. Select a site for its distance, active scrolling time, burst starts, and peak local hour. Its distance share is relative to **recorded-site distance**, never all browser activity or old anonymous history. Search does not change that denominator. Monogram icons are generated locally—no external favicons or guessed site branding.
 
@@ -148,7 +198,7 @@ Before integration tests, run the production build and install Playwright's brow
 
 The browser suite also verifies a genuine service-worker stop/wake, packaged icon dimensions, offline privacy navigation, optional all-site mode/exclusions/revocation, exact-host boundaries, local infinite-feed/SPA fixtures, wheel and keyboard inputs, two actual browser windows, navigation, deletion cancellation, export persistence, real 200% browser zoom, and recovery from an incompatible database in a disposable profile. Wrapped checks compare the downloaded bytes with the displayed PNG, freeze the card during new real scrolling, refresh explicitly, and invalidate previews after cross-tab deletion. A test-only observer captures Blob bytes while delegating the original object-URL creation; it does not mock extension APIs, the renderer, or measured activity. Fixtures map test domains to loopback, and off-fixture page/worker HTTP attempts are logged, blocked, and fail the suite. A real bug on ordinary non-localhost HTTP pages was fixed: collector IDs use the UUID library's cryptographic fallback where `crypto.randomUUID()` is unavailable.
 
-Collector tests simulate midnight before flush, wall-clock rollback, bounded retries/recovery, idle behavior, and immediate epoch/exclusion changes. Calendar tests run the actual metrics module in isolated processes with New York DST and multiple timezones; they do not change the Mac's clock. These checks complement—not replace—the remaining manual checks in [the beta checklist](docs/BETA_CHECKLIST.md). See the [dated beta results](docs/BETA_RESULTS.md) for what was and was not verified. Screenshots remain in ignored local test output.
+Collector tests simulate midnight before flush, wall-clock rollback, bounded retries/recovery, idle behavior, and immediate epoch/exclusion changes. Calendar tests run the actual metrics module in isolated processes with New York DST and multiple timezones; they do not change the Mac's clock. These checks complement—not replace—the remaining manual checks in [the beta checklist](docs/BETA_CHECKLIST.md). See the [dated beta results](docs/BETA_RESULTS.md) for what was and was not verified. Raw screenshots remain in ignored local test output; only the [reviewed documentation images](docs/images/README.md) are committed for the README.
 
 Development mode may need a supported local Chrome installation and WXT's development runner. WXT adds localhost tooling in dev mode. Production has a restrictive `connect-src 'none'` policy and no mandatory host permissions. Always inspect the production manifest before distribution.
 
